@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import "./AdminDashboard.css";
 import axios from "axios";
 
-import API_URL from "./config";
+import API_URL from "../config";
 
 const AdminDashboard = () => {
 
