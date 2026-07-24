@@ -108,11 +108,11 @@ const HomePage = () => {
 
         try {
 
-          await axios.get(`${API_URL}/products`);
+          const { data } = await axios.get(`${API_URL}/products`);
 
-          setProducts(data);
+setProducts(data);
 
-          setFilteredProducts(data);
+setFilteredProducts(data);
 
         } catch (err) {
 
