@@ -1,0 +1,606 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:"Poppins",sans-serif;
+}
+
+/* ==========================
+BODY
+========================== */
+
+body{
+
+background:#050505;
+color:white;
+
+}
+
+/* ==========================
+CART PAGE
+========================== */
+
+.cart-page{
+
+min-height:100vh;
+
+padding:40px 6%;
+
+}
+
+/* ==========================
+TITLE
+========================== */
+
+.cart-title{
+
+font-size:42px;
+
+font-weight:700;
+
+margin-bottom:35px;
+
+color:#FFD700;
+
+}
+
+/* ==========================
+LAYOUT
+========================== */
+
+.cart-container{
+
+display:grid;
+
+grid-template-columns:2fr 1fr;
+
+gap:35px;
+
+align-items:start;
+
+}
+
+/* ==========================
+LEFT
+========================== */
+
+.cart-items{
+
+display:flex;
+
+flex-direction:column;
+
+gap:25px;
+
+}
+
+/* ==========================
+CARD
+========================== */
+
+.cart-card{
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+padding:22px;
+
+border-radius:22px;
+
+background:
+linear-gradient(145deg,#121212,#1d1d1d);
+
+border:1px solid rgba(255,215,0,.18);
+
+box-shadow:
+0 15px 35px rgba(0,0,0,.4);
+
+transition:.4s;
+
+}
+
+.cart-card:hover{
+
+transform:translateY(-6px);
+
+border-color:#FFD700;
+
+box-shadow:
+
+0 15px 35px rgba(0,0,0,.55),
+
+0 0 18px rgba(255,215,0,.18);
+
+}
+
+/* ==========================
+IMAGE
+========================== */
+
+.cart-image{
+
+width:120px;
+
+height:120px;
+
+object-fit:contain;
+
+margin-right:25px;
+
+transition:.4s;
+
+}
+
+.cart-card:hover .cart-image{
+
+transform:scale(1.08);
+
+}
+
+/* ==========================
+DETAILS
+========================== */
+
+.cart-details{
+
+flex:1;
+
+}
+
+.cart-details h3{
+
+font-size:22px;
+
+margin-bottom:8px;
+
+color:white;
+
+}
+
+.cart-details p{
+
+font-size:18px;
+
+color:#FFD700;
+
+font-weight:600;
+
+margin-bottom:18px;
+
+}
+
+/* ==========================
+QTY
+========================== */
+
+.qty-box{
+
+display:flex;
+
+align-items:center;
+
+gap:15px;
+
+}
+
+.qty-box button{
+
+width:42px;
+
+height:42px;
+
+border:none;
+
+border-radius:50%;
+
+background:#FFD700;
+
+color:black;
+
+font-size:22px;
+
+cursor:pointer;
+
+font-weight:700;
+
+transition:.35s;
+
+}
+
+.qty-box button:hover{
+
+transform:scale(1.1);
+
+box-shadow:
+
+0 0 12px rgba(255,215,0,.35);
+
+}
+
+.qty-box span{
+
+font-size:20px;
+
+font-weight:600;
+
+color:white;
+
+}
+/* ==========================
+RIGHT SUMMARY
+========================== */
+
+.summary-card{
+
+background:linear-gradient(145deg,#121212,#1b1b1b);
+
+border:1px solid rgba(255,215,0,.18);
+
+border-radius:22px;
+
+padding:30px;
+
+position:sticky;
+
+top:100px;
+
+box-shadow:
+
+0 15px 35px rgba(0,0,0,.45);
+
+}
+
+.summary-card h2{
+
+font-size:28px;
+
+color:#FFD700;
+
+margin-bottom:25px;
+
+}
+
+.summary-row{
+
+display:flex;
+
+justify-content:space-between;
+
+margin-bottom:18px;
+
+font-size:18px;
+
+color:#ddd;
+
+}
+
+.summary-total{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin:25px 0;
+
+font-size:28px;
+
+font-weight:700;
+
+color:#FFD700;
+
+}
+
+/* ==========================
+BUTTONS
+========================== */
+
+.checkout-btn{
+
+width:100%;
+
+padding:16px;
+
+border:none;
+
+border-radius:12px;
+
+font-size:18px;
+
+font-weight:700;
+
+cursor:pointer;
+
+background:linear-gradient(135deg,#FFD700,#f8b400);
+
+color:#111;
+
+transition:.35s;
+
+}
+
+.checkout-btn:hover{
+
+transform:translateY(-3px);
+
+box-shadow:
+
+0 10px 25px rgba(255,215,0,.35);
+
+}
+
+.remove-btn{
+
+margin-top:15px;
+
+padding:10px 20px;
+
+border:none;
+
+border-radius:10px;
+
+cursor:pointer;
+
+background:#d62828;
+
+color:#fff;
+
+font-weight:600;
+
+transition:.35s;
+
+}
+
+.remove-btn:hover{
+
+background:#b00020;
+
+transform:scale(1.05);
+
+}
+
+/* ==========================
+RIGHT PRICE
+========================== */
+
+.cart-right{
+
+display:flex;
+
+flex-direction:column;
+
+align-items:flex-end;
+
+gap:15px;
+
+}
+
+.cart-right h3{
+
+font-size:24px;
+
+color:#FFD700;
+
+}
+
+/* ==========================
+EMPTY CART
+========================== */
+
+.empty-cart{
+
+text-align:center;
+
+padding:100px 20px;
+
+background:linear-gradient(145deg,#121212,#1c1c1c);
+
+border-radius:20px;
+
+border:1px solid rgba(255,215,0,.15);
+
+}
+
+.empty-cart h2{
+
+font-size:36px;
+
+margin-bottom:20px;
+
+color:#FFD700;
+
+}
+
+.empty-cart p{
+
+font-size:18px;
+
+color:#bbb;
+
+margin-bottom:30px;
+
+}
+
+.continue-btn{
+
+padding:15px 35px;
+
+border:none;
+
+border-radius:12px;
+
+cursor:pointer;
+
+font-size:18px;
+
+font-weight:600;
+
+background:linear-gradient(135deg,#FFD700,#f8b400);
+
+color:#111;
+
+transition:.35s;
+
+}
+
+.continue-btn:hover{
+
+transform:translateY(-3px);
+
+box-shadow:
+
+0 10px 25px rgba(255,215,0,.35);
+
+}
+
+/* ==========================
+LINE
+========================== */
+
+.summary-card hr{
+
+border:none;
+
+height:1px;
+
+background:rgba(255,255,255,.12);
+
+margin:20px 0;
+
+}
+
+/* ==========================
+SCROLLBAR
+========================== */
+
+::-webkit-scrollbar{
+
+width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+background:#111;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+background:#FFD700;
+
+border-radius:20px;
+
+}
+
+/* ==========================
+RESPONSIVE
+========================== */
+
+@media(max-width:992px){
+
+.cart-container{
+
+grid-template-columns:1fr;
+
+}
+
+.summary-card{
+
+position:static;
+
+}
+
+}
+
+@media(max-width:768px){
+
+.cart-page{
+
+padding:25px;
+
+}
+
+.cart-title{
+
+font-size:32px;
+
+text-align:center;
+
+}
+
+.cart-card{
+
+flex-direction:column;
+
+text-align:center;
+
+}
+
+.cart-image{
+
+margin:0 0 20px 0;
+
+width:150px;
+
+height:150px;
+
+}
+
+.cart-right{
+
+align-items:center;
+
+margin-top:20px;
+
+}
+
+.qty-box{
+
+justify-content:center;
+
+}
+
+.summary-card{
+
+margin-top:20px;
+
+}
+
+}
+
+@media(max-width:480px){
+
+.cart-title{
+
+font-size:28px;
+
+}
+
+.summary-total{
+
+font-size:22px;
+
+}
+
+.checkout-btn{
+
+font-size:16px;
+
+padding:14px;
+
+}
+
+.continue-btn{
+
+width:100%;
+
+}
+
+}
