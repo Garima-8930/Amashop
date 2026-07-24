@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./HomePage.css";
+import API_URL from "../config";
 
 const HomePage = () => {
 
@@ -107,10 +108,7 @@ const HomePage = () => {
 
         try {
 
-          const { data } =
-            await axios.get(
-              "/api/products"
-            );
+          await axios.get(`${API_URL}/products`);
 
           setProducts(data);
 
