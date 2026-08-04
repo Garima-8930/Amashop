@@ -6,10 +6,11 @@ import "./CheckoutPage.css";
 const CheckoutPage = () => {
 
   const navigate = useNavigate();
+
   const { placeOrder } = useOrder();
 
   // ==========================
-  // PRODUCTS
+  // BUY NOW / CART PRODUCTS
   // ==========================
 
   const buyNowProduct =
@@ -84,11 +85,9 @@ const CheckoutPage = () => {
 
   const [paymentMethod, setPaymentMethod] =
     useState(
-
       paymentSettings.codEnabled
         ? "COD"
         : "UPI"
-
     );
 
   const [transactionId, setTransactionId] =
@@ -104,32 +103,35 @@ const CheckoutPage = () => {
 
       ...address,
 
-      [e.target.name]: e.target.value,
+      [e.target.name]:
+        e.target.value,
 
     });
 
   };
 
   // ==========================
-  // PRICE CALCULATION
+  // PRICE
   // ==========================
 
   const subTotal = products.reduce(
 
-    (sum, item) =>
+  (sum, item) =>
 
-      sum +
+    sum +
 
-      (Number(item.price) || 0) *
+    (Number(item.price) || 0) *
 
-      (Number(item.qty) || 1),
+    (Number(item.qty) || 1),
 
-    0
+  0
 
-  );
+);
 
   const delivery =
-    subTotal >= 1000 ? 0 : 99;
+    subTotal >= 1000
+      ? 0
+      : 99;
 
   const total =
     subTotal + delivery;
@@ -156,7 +158,9 @@ const CheckoutPage = () => {
 
     ) {
 
-      alert("Please fill all address details.");
+      alert(
+        "Please fill all address details."
+      );
 
       return;
 
@@ -170,7 +174,9 @@ const CheckoutPage = () => {
 
     ) {
 
-      alert("Please enter Transaction ID.");
+      alert(
+        "Please enter Transaction ID."
+      );
 
       return;
 
@@ -178,11 +184,17 @@ const CheckoutPage = () => {
 
     placeOrder(products, total);
 
-    localStorage.removeItem("buyNowProduct");
+    localStorage.removeItem(
+      "buyNowProduct"
+    );
 
-    localStorage.removeItem("cartItems");
+    localStorage.removeItem(
+      "cartItems"
+    );
 
-    alert("Order placed successfully!");
+    alert(
+      "Order placed successfully!"
+    );
 
     navigate("/orders");
 
@@ -196,18 +208,143 @@ const CheckoutPage = () => {
         <div className="checkout-page">
 
       <h1 className="checkout-title">
-        Checkout
+        Secure Checkout
       </h1>
 
       <div className="checkout-container">
 
         {/* ==========================
-            LEFT SIDE
+            PRODUCT SUMMARY
+        ========================== */}
+
+        <div className="summary-card">
+
+          <h2>🛒 Your Order</h2>
+
+          {products.length === 0 ? (
+
+            <p>Your cart is empty.</p>
+
+          ) : (
+
+            <>
+
+              <div className="checkout-products">
+
+                {products.map((item) => (
+
+                  <div
+                    className="checkout-item"
+                    key={item._id}
+                  >
+
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="checkout-image"
+                    />
+
+                    <div className="checkout-info">
+
+                      <h3>
+                        {item.name}
+                      </h3>
+
+                      <p>
+
+                        Quantity :
+                        {" "}
+                        {item.qty || 1}
+
+                      </p>
+
+                      <p>
+
+                        Price :
+                        {" "}
+                        ₹{item.price}
+
+                      </p>
+
+                    </div>
+
+                    <div className="checkout-price">
+
+                      ₹
+
+                      {(Number(item.price) || 0) *
+
+                        (Number(item.qty) || 1)}
+
+                    </div>
+
+                  </div>
+
+                ))}
+
+              </div>
+
+              <hr />
+
+              <div className="summary-row">
+
+                <span>Subtotal</span>
+
+                <span>
+
+                  ₹{subTotal}
+
+                </span>
+
+              </div>
+
+              <div className="summary-row">
+
+                <span>Delivery</span>
+
+                <span>
+
+                  {delivery === 0
+
+                    ? "FREE"
+
+                    : `₹${delivery}`}
+
+                </span>
+
+              </div>
+
+              <hr />
+
+              <div className="summary-total">
+
+                <span>Total</span>
+
+                <span>
+
+                  ₹{total}
+
+                </span>
+
+              </div>
+
+            </>
+
+          )}
+
+        </div>
+
+        {/* ==========================
+            DELIVERY ADDRESS
         ========================== */}
 
         <div className="address-card">
 
-          <h2>Delivery Address</h2>
+          <h2>
+
+            🚚 Delivery Address
+
+          </h2>
 
           <input
             type="text"
@@ -255,211 +392,117 @@ const CheckoutPage = () => {
             value={address.pincode}
             onChange={handleChange}
           />
+                    {/* ==========================
+              PAYMENT SECTION
+          ========================== */}
 
-        </div>
+          <div className="payment-box">
 
-        {/* ==========================
-            RIGHT SIDE
-        ========================== */}
+            <h3>💳 Select Payment Method</h3>
 
-        <div className="summary-card">
+            {paymentSettings.codEnabled && (
 
-          <h2>Order Summary</h2>
+              <label className="payment-option">
 
-          {products.length === 0 ? (
+                <input
+                  type="radio"
+                  value="COD"
+                  checked={paymentMethod === "COD"}
+                  onChange={() =>
+                    setPaymentMethod("COD")
+                  }
+                />
 
-            <p>Your cart is empty.</p>
+                Cash On Delivery (COD)
 
-          ) : (
+              </label>
 
-            <>
+            )}
 
-              <div className="checkout-products">
+            {paymentSettings.upiEnabled && (
 
-                {products.map((item) => (
+              <label className="payment-option">
 
-                  <div
-                    className="checkout-item"
-                    key={item._id}
-                  >
+                <input
+                  type="radio"
+                  value="UPI"
+                  checked={paymentMethod === "UPI"}
+                  onChange={() =>
+                    setPaymentMethod("UPI")
+                  }
+                />
 
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="checkout-image"
-                    />
+                UPI Payment
 
-                    <div className="checkout-info">
+              </label>
 
-                      <h3>{item.name}</h3>
+            )}
 
-                      <p>
-                        Qty : {item.qty || 1}
-                      </p>
+            {paymentMethod === "UPI" && (
 
-                      <p>
-                        ₹{item.price}
-                      </p>
+              <div className="upi-box">
 
-                    </div>
+                <p>
 
-                    <div className="checkout-price">
+                  <strong>UPI ID :</strong>{" "}
 
-                      ₹
-                      {(Number(item.price) || 0) *
-                        (Number(item.qty) || 1)}
+                  {paymentSettings.upiId ||
 
-                    </div>
+                    "Not Available"}
 
-                  </div>
+                </p>
 
-                ))}
+                <p>
 
-              </div>
+                  <strong>Name :</strong>{" "}
 
-              <hr />
+                  {paymentSettings.upiName ||
 
-              <div className="summary-row">
+                    websiteSettings.websiteName ||
 
-                <span>Subtotal</span>
+                    "Not Available"}
 
-                <span>₹{subTotal}</span>
+                </p>
 
-              </div>
+                {paymentSettings.qrCode && (
 
-              <div className="summary-row">
-
-                <span>Delivery</span>
-
-                <span>
-
-                  {delivery === 0
-                    ? "FREE"
-                    : `₹${delivery}`}
-
-                </span>
-
-              </div>
-
-              <hr />
-
-              <div className="summary-total">
-
-                <span>Total Amount</span>
-
-                <span>₹{total}</span>
-
-              </div>
-
-              {/* ==========================
-                  PAYMENT
-              ========================== */}
-
-              <div className="payment-box">
-
-                <h3>
-                  Select Payment Method
-                </h3>
-                                {paymentSettings.codEnabled && (
-
-                  <label className="payment-option">
-
-                    <input
-                      type="radio"
-                      value="COD"
-                      checked={paymentMethod === "COD"}
-                      onChange={() =>
-                        setPaymentMethod("COD")
-                      }
-                    />
-
-                    Cash On Delivery
-
-                  </label>
+                  <img
+                    src={paymentSettings.qrCode}
+                    alt="UPI QR"
+                    className="upi-qr"
+                  />
 
                 )}
 
-                {paymentSettings.upiEnabled && (
-
-                  <label className="payment-option">
-
-                    <input
-                      type="radio"
-                      value="UPI"
-                      checked={paymentMethod === "UPI"}
-                      onChange={() =>
-                        setPaymentMethod("UPI")
-                      }
-                    />
-
-                    UPI Payment
-
-                  </label>
-
-                )}
-
-                {paymentMethod === "UPI" && (
-
-                  <div className="upi-box">
-
-                    <p>
-
-                      <strong>UPI ID :</strong>{" "}
-
-                      {paymentSettings.upiId ||
-                        "Not Available"}
-
-                    </p>
-
-                    <p>
-
-                      <strong>Name :</strong>{" "}
-
-                      {paymentSettings.upiName ||
-                        websiteSettings.websiteName ||
-                        "Not Available"}
-
-                    </p>
-
-                    {paymentSettings.qrCode && (
-
-                      <img
-                        src={paymentSettings.qrCode}
-                        alt="UPI QR"
-                        className="upi-qr"
-                      />
-
-                    )}
-
-                    <input
-                      type="text"
-                      placeholder="Enter Transaction ID"
-                      value={transactionId}
-                      onChange={(e) =>
-                        setTransactionId(
-                          e.target.value
-                        )
-                      }
-                    />
-
-                  </div>
-
-                )}
+                <input
+                  type="text"
+                  placeholder="Enter Transaction ID"
+                  value={transactionId}
+                  onChange={(e) =>
+                    setTransactionId(
+                      e.target.value
+                    )
+                  }
+                />
 
               </div>
 
-              <button
-                className="place-order-btn"
-                onClick={handlePlaceOrder}
-              >
+            )}
 
-                📦 Place Order
+          </div>
 
-              </button>
+          {/* ==========================
+              PLACE ORDER
+          ========================== */}
 
-            </>
+          <button
+            className="place-order-btn"
+            onClick={handlePlaceOrder}
+          >
 
-          )}
+            📦 Place Order • ₹{total}
+
+          </button>
 
         </div>
 

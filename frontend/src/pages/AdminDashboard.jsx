@@ -1,22 +1,44 @@
-import React, { useEffect, useMemo, useState } from "react";
-import "./AdminDashboard.css";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+} from "react";
+
 import axios from "axios";
+import "./AdminDashboard.css";
 
 import API_URL from "../config";
 
 const AdminDashboard = () => {
 
-  // ==========================
+  // ======================================
+  // DASHBOARD STATS
+  // ======================================
+
+  const [stats, setStats] = useState({
+
+    totalUsers: 0,
+
+    totalProducts: 0,
+
+    totalOrders: 0,
+
+    totalRevenue: 0,
+
+  });
+
+  // ======================================
   // USERS
-  // ==========================
+  // ======================================
 
   const [users, setUsers] = useState([]);
 
-  // ==========================
+  // ======================================
   // PRODUCTS
-  // ==========================
+  // ======================================
 
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] =
+    useState([]);
 
   const [editingProduct, setEditingProduct] =
     useState(null);
@@ -38,25 +60,27 @@ const AdminDashboard = () => {
 
     });
 
-  // ==========================
+  // ======================================
   // ORDERS
-  // ==========================
+  // ======================================
 
   const [orders, setOrders] =
     useState([]);
 
-  // ==========================
+  // ======================================
   // WEBSITE SETTINGS
-  // ==========================
+  // ======================================
 
   const [settings, setSettings] =
     useState({
 
-      websiteName: "AMA SHOP",
+      websiteName: "AMASHOP",
 
-      heroTitle: "",
+      heroTitle:
+        "Premium Electronics Store",
 
-      heroSubtitle: "",
+      heroSubtitle:
+        "Discover Premium Electronics at Best Prices",
 
       contact: "",
 
@@ -68,9 +92,9 @@ const AdminDashboard = () => {
 
     });
 
-  // ==========================
+  // ======================================
   // PAYMENT SETTINGS
-  // ==========================
+  // ======================================
 
   const [paymentSettings, setPaymentSettings] =
     useState({
@@ -85,9 +109,9 @@ const AdminDashboard = () => {
 
     });
 
-  // ==========================
+  // ======================================
   // AUTO QR
-  // ==========================
+  // ======================================
 
   const qrCode = useMemo(() => {
 
@@ -95,13 +119,19 @@ const AdminDashboard = () => {
       return "";
 
     const upiLink =
+
       `upi://pay?pa=${paymentSettings.upiId}` +
+
       `&pn=${encodeURIComponent(
+
         paymentSettings.upiName
+
       )}`;
 
     return `https://quickchart.io/qr?text=${encodeURIComponent(
+
       upiLink
+
     )}`;
 
   }, [
@@ -112,155 +142,213 @@ const AdminDashboard = () => {
 
   ]);
 
-  // ==========================
-  // LOAD
-  // ==========================
+  // ======================================
+ 
+  
+ // LOAD DATA
+  // ======================================
+
+
+  // ======================================
+  // ======================================
+  // CALCULATE STATS
+  // ======================================
 
   useEffect(() => {
 
-    fetchUsers();
+    const revenue = orders.reduce(
 
-    fetchProducts();
+      (sum, order) =>
 
-    fetchOrders();
+        sum +
 
-    const website =
+        Number(
+
+          order.totalAmount ||
+
+          order.totalPrice ||
+
+          0
+
+        ),
+
+      0
+
+    );
+
+    setStats({
+
+      totalUsers: users.length,
+
+      totalProducts: products.length,
+
+      totalOrders: orders.length,
+
+      totalRevenue: revenue,
+
+    });
+
+  }, [
+
+    users,
+
+    products,
+
+    orders,
+
+  ]);
+    // ======================================
+  // FETCH USERS
+  // ======================================
+
+  const fetchUsers = async () => {
+
+    try {
+
+      const { data } = await axios.get(
+        `${API_URL}/users`
+      );
+
+      setUsers(data || []);
+
+    } catch (error) {
+
+      console.error(
+        "Users Load Error",
+        error
+      );
+
+    }
+
+  };
+
+  // ======================================
+  // FETCH PRODUCTS
+  // ======================================
+
+  const fetchProducts = async () => {
+
+    try {
+
+      const { data } = await axios.get(
+        `${API_URL}/products`
+      );
+
+      setProducts(data || []);
+
+    } catch (error) {
+
+      console.error(
+        "Products Load Error",
+        error
+      );
+
+    }
+
+  };
+
+  // ======================================
+// LOAD DASHBOARD
+// ======================================
+
+const loadDashboard = async () => {
+
+  await Promise.all([
+
+    fetchUsers(),
+
+    fetchProducts(),
+
+    fetchOrders(),
+
+  ]);
+
+  loadWebsiteSettings();
+
+  loadPaymentSettings();
+
+};
+
+// ======================================
+// LOAD DATA
+// ======================================
+useEffect(() => {
+  loadDashboard();
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
+  // ======================================
+  // FETCH ORDERS
+  // ======================================
+
+  const fetchOrders = async () => {
+
+    try {
+
+      const { data } = await axios.get(
+        `${API_URL}/orders`
+      );
+
+      setOrders(data || []);
+
+    } catch (error) {
+
+      console.error(
+        "Orders Load Error",
+        error
+      );
+
+    }
+
+  };
+
+  // ======================================
+  // LOAD WEBSITE SETTINGS
+  // ======================================
+
+  const loadWebsiteSettings = () => {
+
+    const saved =
       JSON.parse(
         localStorage.getItem(
           "websiteSettings"
         )
       );
 
-    if (website) {
+    if (saved) {
 
-      setSettings(website);
+      setSettings(saved);
 
     }
 
-    const payment =
+  };
+
+  // ======================================
+  // LOAD PAYMENT SETTINGS
+  // ======================================
+
+  const loadPaymentSettings = () => {
+
+    const saved =
       JSON.parse(
         localStorage.getItem(
           "paymentSettings"
         )
       );
 
-    if (payment) {
+    if (saved) {
 
-      setPaymentSettings(payment);
+      setPaymentSettings(saved);
 
     }
 
-  }, []);
-
-  // ==========================
-  // FETCH USERS
-  // ==========================
-
-  const fetchUsers = () => {
-
-    const data =
-      JSON.parse(
-        localStorage.getItem("users")
-      ) || [];
-
-    setUsers(data);
-
   };
 
-  // ==========================
-  // FETCH PRODUCTS
-  // ==========================
+  // ======================================
+  // SAVE WEBSITE SETTINGS
+  // ======================================
 
-  const fetchProducts =
-    async () => {
-
-      try {
-
-        const { data } =
-          await axios.get(
-            `${API_URL}/products/all`
-          );
-
-        setProducts(data);
-
-      } catch (error) {
-
-        console.log(error);
-
-      }
-
-    };
-
-  // ==========================
-  // FETCH ORDERS
-  // ==========================
-
-  const fetchOrders = () => {
-
-    const data =
-      JSON.parse(
-        localStorage.getItem("orders")
-      ) || [];
-
-    setOrders(data);
-
-  };
-
-  // ==========================
-  // WEBSITE SETTINGS
-  // ==========================
-
-  const handleSettingsChange =
-    (e) => {
-
-      setSettings({
-
-        ...settings,
-
-        [e.target.name]:
-          e.target.value,
-
-      });
-
-    };
-
-  // ==========================
-  // PAYMENT SETTINGS
-  // ==========================
-
-  const handlePaymentChange =
-    (e) => {
-
-      const {
-
-        name,
-
-        value,
-
-        type,
-
-        checked,
-
-      } = e.target;
-
-      setPaymentSettings({
-
-        ...paymentSettings,
-
-        [name]:
-          type === "checkbox"
-            ? checked
-            : value,
-
-      });
-
-    };
-
-  // ==========================
-  // SAVE SETTINGS
-  // ==========================
-
-  const saveSettings = () => {
+  const saveWebsiteSettings = () => {
 
     localStorage.setItem(
 
@@ -269,6 +357,18 @@ const AdminDashboard = () => {
       JSON.stringify(settings)
 
     );
+
+    alert(
+      "Website Settings Saved Successfully ✅"
+    );
+
+  };
+
+  // ======================================
+  // SAVE PAYMENT SETTINGS
+  // ======================================
+
+  const savePaymentSettings = () => {
 
     localStorage.setItem(
 
@@ -285,22 +385,20 @@ const AdminDashboard = () => {
     );
 
     alert(
-      "Settings Saved Successfully"
+      "Payment Settings Saved Successfully ✅"
     );
 
   };
 
-  // ==========================
-  // ADD PRODUCT
-  // ==========================
-    // ==========================
-  
+  // ======================================
+  // INPUT CHANGE
+  // ======================================
 
-  const handleInput = (e) => {
+  const handleSettingChange = (e) => {
 
-    setNewProduct({
+    setSettings({
 
-      ...newProduct,
+      ...settings,
 
       [e.target.name]:
         e.target.value,
@@ -309,854 +407,1438 @@ const AdminDashboard = () => {
 
   };
 
-  const handleAddProduct =
-    async (e) => {
+  // ======================================
+  // PAYMENT CHANGE
+  // ======================================
 
-      e.preventDefault();
+  const handlePaymentChange = (e) => {
 
-      if (
+    const {
 
-        !newProduct.name ||
+      name,
 
-        !newProduct.price ||
+      value,
 
-        !newProduct.image
+      type,
 
-      ) {
+      checked,
 
-        alert(
-          "Please fill all required fields."
-        );
+    } = e.target;
 
-        return;
+    setPaymentSettings({
 
-      }
+      ...paymentSettings,
 
-      try {
+      [name]:
 
-        await axios.post(
+        type === "checkbox"
 
-          `${API_URL}/products`,
+          ? checked
 
-          {
-
-            ...newProduct,
-
-            status: "approved",
-
-          }
-
-        );
-
-        alert(
-          "Product Added Successfully"
-        );
-
-        setNewProduct({
-
-          name: "",
-
-          price: "",
-
-          category: "",
-
-          image: "",
-
-          description: "",
-
-          sellerEmail:
-            "admin@amashop.com",
-
-        });
-
-        fetchProducts();
-
-      } catch (error) {
-
-        console.log(error);
-
-        alert(
-          "Unable to add product."
-        );
-
-      }
-
-    };
-
-  // ==========================
-  // EDIT PRODUCT
-  // ==========================
-
-  const startEdit = (product) => {
-
-    setEditingProduct({
-
-      ...product,
+          : value,
 
     });
 
   };
-    // ==========================
+    // ======================================
+  // PRODUCT INPUT CHANGE
+  // ======================================
+
+  const handleProductChange = (e) => {
+
+    setNewProduct({
+
+      ...newProduct,
+
+      [e.target.name]: e.target.value,
+
+    });
+
+  };
+
+  // ======================================
+  // ADD PRODUCT
+  // ======================================
+
+  const addProduct = async () => {
+
+    if (
+
+      !newProduct.name ||
+
+      !newProduct.price ||
+
+      !newProduct.category ||
+
+      !newProduct.image
+
+    ) {
+
+      alert("Please fill all required fields.");
+
+      return;
+
+    }
+
+    try {
+
+      const { data } = await axios.post(
+
+        `${API_URL}/products`,
+
+        newProduct
+
+      );
+
+      setProducts((prev) => [
+
+        ...prev,
+
+        data,
+
+      ]);
+
+      setNewProduct({
+
+        name: "",
+
+        price: "",
+
+        category: "",
+
+        image: "",
+
+        description: "",
+
+        sellerEmail: "admin@amashop.com",
+
+      });
+
+      alert("Product Added Successfully ✅");
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Unable to add product.");
+
+    }
+
+  };
+
+  // ======================================
+  // EDIT PRODUCT
+  // ======================================
+
+  const startEditProduct = (product) => {
+
+    setEditingProduct(product._id);
+
+    setNewProduct({
+
+      name: product.name,
+
+      price: product.price,
+
+      category: product.category,
+
+      image: product.image,
+
+      description: product.description,
+
+      sellerEmail:
+
+        product.sellerEmail ||
+
+        "admin@amashop.com",
+
+    });
+
+  };
+
+  // ======================================
   // UPDATE PRODUCT
-  // ==========================
+  // ======================================
 
-  const handleUpdate =
-    async () => {
+  const updateProduct = async () => {
 
-      if (!editingProduct)
-        return;
+    try {
 
-      try {
+      const { data } = await axios.put(
 
-        await axios.put(
+        `${API_URL}/products/${editingProduct}`,
 
-          `${API_URL}/products/${editingProduct._id}`,
+        newProduct
 
-          editingProduct
+      );
 
-        );
+      setProducts((prev) =>
 
-        alert(
-          "Product Updated Successfully"
-        );
+        prev.map((item) =>
 
-        setEditingProduct(null);
+          item._id === editingProduct
 
-        fetchProducts();
+            ? data
 
-      } catch (error) {
+            : item
 
-        console.log(error);
+        )
 
-        alert(
-          "Unable to update product."
-        );
+      );
 
-      }
+      setEditingProduct(null);
 
-    };
+      setNewProduct({
 
-  // ==========================
-  // APPROVE PRODUCT
-  // ==========================
+        name: "",
 
-  const handleApprove =
-    async (id) => {
+        price: "",
 
-      try {
+        category: "",
 
-        await axios.put(
+        image: "",
 
-          `${API_URL}/products/approve/${id}`
+        description: "",
 
-        );
+        sellerEmail: "admin@amashop.com",
 
-        alert(
-          "Product Approved Successfully"
-        );
+      });
 
-        fetchProducts();
+      alert("Product Updated Successfully ✅");
 
-      } catch (error) {
+    } catch (error) {
 
-        console.log(error);
+      console.error(error);
 
-        alert(
-          "Unable to approve product."
-        );
+      alert("Unable to update product.");
 
-      }
+    }
 
-    };
+  };
 
-  // ==========================
+  // ======================================
   // DELETE PRODUCT
-  // ==========================
+  // ======================================
 
-  const handleDelete =
-    async (id) => {
+  const deleteProduct = async (id) => {
 
-      const confirmDelete =
-        window.confirm(
-          "Are you sure you want to delete this product?"
-        );
+    const confirmDelete = window.confirm(
 
-      if (!confirmDelete)
-        return;
+      "Delete this product?"
 
-      try {
+    );
 
-        await axios.delete(
+    if (!confirmDelete) return;
 
-          `${API_URL}/products/${id}`
+    try {
 
-        );
+      await axios.delete(
 
-        alert(
-          "Product Deleted Successfully"
-        );
+        `${API_URL}/products/${id}`
 
-        fetchProducts();
+      );
 
-      } catch (error) {
+      setProducts((prev) =>
 
-        console.log(error);
+        prev.filter(
 
-        alert(
-          "Unable to delete product."
-        );
+          (item) => item._id !== id
 
-      }
+        )
 
-    };
+      );
 
-  // ==========================
-  // RETURN
-  // ==========================
+      alert("Product Deleted Successfully 🗑");
 
-  return (<div className="dashboard">
+    } catch (error) {
 
-  <h1 className="dashboard-title">
-    🧑‍💼 Admin Dashboard
-  </h1>
+      console.error(error);
 
-  {/* ================= ADD PRODUCT ================= */}
+      alert("Unable to delete product.");
 
-  <div className="card">
+    }
 
-    <h2 className="section-title">
+  };
 
-      ➕ Add Product
+  // ======================================
+  // CANCEL EDIT
+  // ======================================
 
-    </h2>
+  const cancelEdit = () => {
 
-    <form
-      className="settings-grid"
-      onSubmit={handleAddProduct}
-    >
+    setEditingProduct(null);
 
-      <input
-        type="text"
-        name="name"
-        placeholder="Product Name"
-        value={newProduct.name}
-        onChange={handleInput}
-        required
-      />
+    setNewProduct({
 
-      <input
-        type="number"
-        name="price"
-        placeholder="Price"
-        value={newProduct.price}
-        onChange={handleInput}
-        required
-      />
+      name: "",
 
-      <input
-        type="text"
-        name="category"
-        placeholder="Category"
-        value={newProduct.category}
-        onChange={handleInput}
-      />
+      price: "",
 
-      <input
-        type="text"
-        name="image"
-        placeholder="Image URL"
-        value={newProduct.image}
-        onChange={handleInput}
-        required
-      />
+      category: "",
 
-      <textarea
-        name="description"
-        placeholder="Description"
-        value={newProduct.description}
-        onChange={handleInput}
-      />
+      image: "",
 
-      <button
-        className="save-btn"
-        type="submit"
-      >
+      description: "",
 
-        ➕ Add Product
+      sellerEmail: "admin@amashop.com",
 
-      </button>
+    });
 
-    </form>
+  };
+    // ======================================
+  // SEARCH
+  // ======================================
 
-  </div>
+  const [search, setSearch] = useState("");
 
-  {/* ================= USERS ================= */}
+  const filteredProducts = useMemo(() => {
 
-  <div className="card">
+    return products.filter((product) =>
 
-    <h2 className="section-title">
+      product.name
+        ?.toLowerCase()
+        .includes(search.toLowerCase())
 
-      👥 Registered Users
+    );
 
-    </h2>
+  }, [products, search]);
 
-    <table className="custom-table">
+  // ======================================
+  // DASHBOARD CARDS
+  // ======================================
 
-      <thead>
+  const DashboardCards = () => (
 
-        <tr>
+    <div className="dashboard-cards">
 
-          <th>Name</th>
+      <div className="dashboard-card users-card">
 
-          <th>Email</th>
+        <h3>👥 Users</h3>
 
-          <th>Role</th>
+        <h1>{stats.totalUsers}</h1>
 
-        </tr>
+        <p>Registered Users</p>
 
-      </thead>
+      </div>
 
-      <tbody>
+      <div className="dashboard-card products-card">
 
-        {users.length === 0 ? (
+        <h3>📦 Products</h3>
 
-          <tr>
+        <h1>{stats.totalProducts}</h1>
 
-            <td
-              colSpan="3"
-              className="empty"
-            >
+        <p>Total Products</p>
 
-              No Users Found
+      </div>
 
-            </td>
+      <div className="dashboard-card orders-card">
 
-          </tr>
+        <h3>🛒 Orders</h3>
 
-        ) : (
+        <h1>{stats.totalOrders}</h1>
 
-          users.map((user,index)=>(
+        <p>Orders Received</p>
 
-            <tr key={index}>
+      </div>
 
-              <td>{user.name}</td>
+      <div className="dashboard-card revenue-card">
 
-              <td>{user.email}</td>
+        <h3>💰 Revenue</h3>
 
-              <td>{user.role}</td>
+        <h1>
 
-            </tr>
+          ₹
 
-          ))
+          {stats.totalRevenue.toLocaleString(
+            "en-IN"
+          )}
 
-        )}
+        </h1>
 
-      </tbody>
+        <p>Total Revenue</p>
 
-    </table>
-
-  </div>
-
-  {/* ================= PRODUCTS ================= */}
-
-  <div className="card">
-
-    <h2 className="section-title">
-
-      📦 Products
-
-    </h2>
-
-    <table className="custom-table">
-
-      <thead>
-
-        <tr>
-
-          <th>Image</th>
-
-          <th>Name</th>
-
-          <th>Price</th>
-
-          <th>Category</th>
-
-          <th>Status</th>
-
-          <th>Action</th>
-
-        </tr>
-
-      </thead>
-
-      <tbody>
-
-        {products.length===0 ? (
-
-          <tr>
-
-            <td
-              colSpan="6"
-              className="empty"
-            >
-
-              No Products Found
-
-            </td>
-
-          </tr>
-
-        ) : (
-
-          products.map((product)=>(
-
-            <tr key={product._id}>
-
-              <td>
-
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  width="70"
-                />
-
-              </td>
-
-              <td>
-
-                {editingProduct?._id===product._id ? (
-
-                  <input
-                    value={editingProduct.name}
-                    onChange={(e)=>
-                      setEditingProduct({
-
-                        ...editingProduct,
-
-                        name:e.target.value,
-
-                      })
-                    }
-                  />
-
-                ) : (
-
-                  product.name
-
-                )}
-
-              </td>
-
-              <td>
-
-                {editingProduct?._id===product._id ? (
-
-                  <input
-                    type="number"
-                    value={editingProduct.price}
-                    onChange={(e)=>
-                      setEditingProduct({
-
-                        ...editingProduct,
-
-                        price:e.target.value,
-
-                      })
-                    }
-                  />
-
-                ) : (
-
-                  <>₹{product.price}</>
-
-                )}
-
-              </td>
-
-              <td>
-
-                {editingProduct?._id===product._id ? (
-
-                  <input
-                    value={editingProduct.category}
-                    onChange={(e)=>
-                      setEditingProduct({
-
-                        ...editingProduct,
-
-                        category:e.target.value,
-
-                      })
-                    }
-                  />
-
-                ) : (
-
-                  product.category
-
-                )}
-
-              </td>
-
-              <td>
-
-                {product.status}
-
-              </td>
-
-              <td>
-                                {editingProduct?._id === product._id ? (
-
-                  <button
-                    className="save-btn"
-                    onClick={handleUpdate}
-                  >
-                    💾 Save
-                  </button>
-
-                ) : (
-
-                  <button
-                    className="edit-btn"
-                    onClick={() =>
-                      startEdit(product)
-                    }
-                  >
-                    ✏ Edit
-                  </button>
-
-                )}
-
-                {product.status === "pending" && (
-
-                  <button
-                    className="approve-btn"
-                    onClick={() =>
-                      handleApprove(product._id)
-                    }
-                  >
-                    ✔ Approve
-                  </button>
-
-                )}
-
-                <button
-                  className="delete-btn"
-                  onClick={() =>
-                    handleDelete(product._id)
-                  }
-                >
-                  🗑 Delete
-                </button>
-
-              </td>
-
-            </tr>
-
-          ))
-
-        )}
-
-      </tbody>
-
-    </table>
-
-  </div>
-
-  {/* ================= ORDERS ================= */}
-
-  <div className="card">
-
-    <h2 className="section-title">
-
-      🛒 Orders
-
-    </h2>
-
-    <table className="custom-table">
-
-      <thead>
-
-        <tr>
-
-          <th>Customer</th>
-
-          <th>Items</th>
-
-          <th>Payment</th>
-
-          <th>Total</th>
-
-          <th>Status</th>
-
-        </tr>
-
-      </thead>
-
-      <tbody>
-
-        {orders.length === 0 ? (
-
-          <tr>
-
-            <td
-              colSpan="5"
-              className="empty"
-            >
-
-              No Orders Found
-
-            </td>
-
-          </tr>
-
-        ) : (
-
-          orders.map((order,index)=>(
-
-            <tr key={index}>
-
-              <td>
-
-                <strong>
-
-                  {order.customerName ||
-                    order.user?.name}
-
-                </strong>
-
-                <br/>
-
-                {order.phone}
-
-              </td>
-
-              <td>
-
-                {order.products?.map(
-                  (item,i)=>(
-
-                    <div key={i}>
-
-                      {item.name}
-
-                      {" × "}
-
-                      {item.quantity ||
-                        item.qty ||
-                        1}
-
-                    </div>
-
-                  )
-                )}
-
-              </td>
-
-              <td>
-
-                {order.paymentMethod}
-
-              </td>
-
-              <td>
-
-                ₹
-
-                {order.totalAmount ||
-                  order.totalPrice}
-
-              </td>
-
-              <td>
-
-                {order.orderStatus ||
-                  "Pending"}
-
-              </td>
-
-            </tr>
-
-          ))
-
-        )}
-
-      </tbody>
-
-    </table>
-
-  </div>
-    {/* ================= WEBSITE SETTINGS ================= */}
-
-  <div className="card">
-
-    <h2 className="section-title">
-
-      ⚙ Website Settings
-
-    </h2>
-
-    <div className="settings-grid">
-
-      <input
-        type="text"
-        name="websiteName"
-        placeholder="Website Name"
-        value={settings.websiteName}
-        onChange={handleSettingsChange}
-      />
-
-      <input
-        type="text"
-        name="heroTitle"
-        placeholder="Hero Title"
-        value={settings.heroTitle}
-        onChange={handleSettingsChange}
-      />
-
-      <input
-        type="text"
-        name="heroSubtitle"
-        placeholder="Hero Subtitle"
-        value={settings.heroSubtitle}
-        onChange={handleSettingsChange}
-      />
-
-      <input
-        type="text"
-        name="contact"
-        placeholder="Contact Number"
-        value={settings.contact}
-        onChange={handleSettingsChange}
-      />
-
-      <input
-        type="email"
-        name="email"
-        placeholder="Support Email"
-        value={settings.email}
-        onChange={handleSettingsChange}
-      />
+      </div>
 
     </div>
 
-  </div>
+  );
 
-  {/* ================= PAYMENT SETTINGS ================= */}
+  // ======================================
+  // HEADER
+  // ======================================
 
-  <div className="card">
+  const DashboardHeader = () => (
 
-    <h2 className="section-title">
+    <div className="dashboard-header">
 
-      💳 Payment Settings
+      <div>
 
-    </h2>
+        <h1>
 
-    <div className="settings-grid">
+          Admin Dashboard
 
-      <label className="checkbox-label">
+        </h1>
 
-        <input
-          type="checkbox"
-          name="codEnabled"
-          checked={paymentSettings.codEnabled}
-          onChange={handlePaymentChange}
-        />
+        <p>
 
-        Enable Cash On Delivery
-
-      </label>
-
-      <label className="checkbox-label">
-
-        <input
-          type="checkbox"
-          name="upiEnabled"
-          checked={paymentSettings.upiEnabled}
-          onChange={handlePaymentChange}
-        />
-
-        Enable UPI Payment
-
-      </label>
-
-      <input
-        type="text"
-        name="upiId"
-        placeholder="UPI ID"
-        value={paymentSettings.upiId}
-        onChange={handlePaymentChange}
-      />
-
-      <input
-        type="text"
-        name="upiName"
-        placeholder="UPI Name"
-        value={paymentSettings.upiName}
-        onChange={handlePaymentChange}
-      />
-
-    </div>
-
-    {paymentSettings.upiEnabled &&
-      paymentSettings.upiId && (
-
-      <div
-        style={{
-          marginTop: "25px",
-          textAlign: "center",
-        }}
-      >
-
-        <h3>
-
-          Auto Generated QR
-
-        </h3>
-
-        <img
-          src={qrCode}
-          alt="UPI QR"
-          style={{
-            width: "220px",
-            height: "220px",
-            borderRadius: "12px",
-            border: "1px solid #ddd",
-            padding: "10px",
-            background: "#fff",
-          }}
-        />
-
-        <p
-          style={{
-            marginTop: "15px",
-          }}
-        >
-
-          <strong>
-
-            {paymentSettings.upiId}
-
-          </strong>
+          Welcome back, Admin 👋
 
         </p>
 
       </div>
 
-    )}
+      <input
 
-    <button
-      className="save-btn"
-      onClick={saveSettings}
-    >
+        type="text"
 
-      💾 Save Settings
+        placeholder="Search Products..."
 
-    </button>
+        value={search}
 
-  </div>
+        onChange={(e) =>
 
-</div>
+          setSearch(e.target.value)
+
+        }
+
+        className="dashboard-search"
+
+      />
+
+    </div>
+
+  );
+
+  // ======================================
+  // PAGE START
+  // ======================================
+
+  return (
+
+    <div className="admin-dashboard">
+
+      <DashboardHeader />
+
+      <DashboardCards />
+
+      {/* Remaining Sections */}
+            {/* ======================================
+          WEBSITE SETTINGS
+      ====================================== */}
+
+      <section className="admin-section">
+
+        <h2>🌐 Website Settings</h2>
+
+        <div className="form-grid">
+
+          <input
+            type="text"
+            name="websiteName"
+            placeholder="Website Name"
+            value={settings.websiteName}
+            onChange={handleSettingChange}
+          />
+
+          <input
+            type="text"
+            name="heroTitle"
+            placeholder="Hero Title"
+            value={settings.heroTitle}
+            onChange={handleSettingChange}
+          />
+
+          <input
+            type="text"
+            name="heroSubtitle"
+            placeholder="Hero Subtitle"
+            value={settings.heroSubtitle}
+            onChange={handleSettingChange}
+          />
+
+          <input
+            type="text"
+            name="contact"
+            placeholder="Contact Number"
+            value={settings.contact}
+            onChange={handleSettingChange}
+          />
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Email Address"
+            value={settings.email}
+            onChange={handleSettingChange}
+          />
+
+        </div>
+
+        <button
+          className="save-btn"
+          onClick={saveWebsiteSettings}
+        >
+
+          💾 Save Website Settings
+
+        </button>
+
+      </section>
+
+      {/* ======================================
+          PAYMENT SETTINGS
+      ====================================== */}
+
+      <section className="admin-section">
+
+        <h2>💳 Payment Settings</h2>
+
+        <div className="form-grid">
+
+          <label className="checkbox">
+
+            <input
+              type="checkbox"
+              name="codEnabled"
+              checked={paymentSettings.codEnabled}
+              onChange={handlePaymentChange}
+            />
+
+            Cash On Delivery
+
+          </label>
+
+          <label className="checkbox">
+
+            <input
+              type="checkbox"
+              name="upiEnabled"
+              checked={paymentSettings.upiEnabled}
+              onChange={handlePaymentChange}
+            />
+
+            UPI Payment
+
+          </label>
+
+          <input
+            type="text"
+            name="upiId"
+            placeholder="UPI ID"
+            value={paymentSettings.upiId}
+            onChange={handlePaymentChange}
+          />
+
+          <input
+            type="text"
+            name="upiName"
+            placeholder="UPI Name"
+            value={paymentSettings.upiName}
+            onChange={handlePaymentChange}
+          />
+
+        </div>
+
+        {qrCode && (
+
+          <div className="qr-preview">
+
+            <h3>QR Preview</h3>
+
+            <img
+              src={qrCode}
+              alt="UPI QR"
+            />
+
+          </div>
+
+        )}
+
+        <button
+          className="save-btn"
+          onClick={savePaymentSettings}
+        >
+
+          💾 Save Payment Settings
+
+        </button>
+
+      </section>
+
+      {/* ======================================
+          PRODUCT MANAGEMENT
+      ====================================== */}
+            <section className="admin-section">
+
+        <h2>
+
+          📦 Product Management
+
+        </h2>
+
+        {/* ==========================
+            ADD / EDIT PRODUCT
+        ========================== */}
+
+        <div className="product-form">
+
+          <input
+            type="text"
+            name="name"
+            placeholder="Product Name"
+            value={newProduct.name}
+            onChange={handleProductChange}
+          />
+
+          <input
+            type="number"
+            name="price"
+            placeholder="Price"
+            value={newProduct.price}
+            onChange={handleProductChange}
+          />
+
+          <input
+            type="text"
+            name="category"
+            placeholder="Category"
+            value={newProduct.category}
+            onChange={handleProductChange}
+          />
+
+          <input
+            type="text"
+            name="image"
+            placeholder="Image URL"
+            value={newProduct.image}
+            onChange={handleProductChange}
+          />
+
+          <textarea
+            name="description"
+            placeholder="Product Description"
+            value={newProduct.description}
+            onChange={handleProductChange}
+          />
+
+          <div className="product-buttons">
+
+            {editingProduct ? (
+
+              <>
+
+                <button
+                  className="update-btn"
+                  onClick={updateProduct}
+                >
+
+                  ✏ Update Product
+
+                </button>
+
+                <button
+                  className="cancel-btn"
+                  onClick={cancelEdit}
+                >
+
+                  ❌ Cancel
+
+                </button>
+
+              </>
+
+            ) : (
+
+              <button
+                className="add-btn"
+                onClick={addProduct}
+              >
+
+                ➕ Add Product
+
+              </button>
+
+            )}
+
+          </div>
+
+        </div>
+
+        {/* ==========================
+            PRODUCT LIST
+        ========================== */}
+
+        <div className="products-table">
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th>Image</th>
+
+                <th>Name</th>
+
+                <th>Category</th>
+
+                <th>Price</th>
+
+                <th>Seller</th>
+
+                <th>Actions</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {filteredProducts.length === 0 ? (
+
+                <tr>
+
+                  <td
+                    colSpan="6"
+                    style={{
+                      textAlign: "center",
+                      padding: "30px",
+                    }}
+                  >
+
+                    No Products Found
+
+                  </td>
+
+                </tr>
+
+              ) : (
+
+                filteredProducts.map((product) => (
+
+                  <tr key={product._id}>
+
+                    <td>
+
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="table-image"
+                      />
+
+                    </td>
+
+                    <td>
+
+                      {product.name}
+
+                    </td>
+
+                    <td>
+
+                      {product.category}
+
+                    </td>
+
+                    <td>
+
+                      ₹{product.price}
+
+                    </td>
+
+                    <td>
+
+                      {product.sellerEmail}
+
+                    </td>
+
+                    <td>
+
+                      <button
+                        className="edit-btn"
+                        onClick={() =>
+                          startEditProduct(product)
+                        }
+                      >
+
+                        Edit
+
+                      </button>
+
+                      <button
+                        className="delete-btn"
+                        onClick={() =>
+                          deleteProduct(product._id)
+                        }
+                      >
+
+                        Delete
+
+                      </button>
+
+                    </td>
+
+                  </tr>
+
+                ))
+
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
+      {/* ======================================
+          USERS SECTION
+      ====================================== */}
+            <section className="admin-section">
+
+        <h2>👥 Users Management</h2>
+
+        <div className="users-table">
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th>Name</th>
+
+                <th>Email</th>
+
+                <th>Role</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {users.length === 0 ? (
+
+                <tr>
+
+                  <td
+                    colSpan="3"
+                    style={{
+                      textAlign: "center",
+                      padding: "25px",
+                    }}
+                  >
+
+                    No Users Available
+
+                  </td>
+
+                </tr>
+
+              ) : (
+
+                users.map((user) => (
+
+                  <tr key={user._id || user.email}>
+
+                    <td>{user.name}</td>
+
+                    <td>{user.email}</td>
+
+                    <td>
+
+                      <span
+                        className={`role-badge ${user.role}`}
+                      >
+
+                        {user.role}
+
+                      </span>
+
+                    </td>
+
+                  </tr>
+
+                ))
+
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
+      {/* ======================================
+          ORDERS MANAGEMENT
+      ====================================== */}
+
+      <section className="admin-section">
+
+        <h2>🛒 Orders Management</h2>
+
+        <div className="orders-table">
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th>Customer</th>
+
+                <th>Products</th>
+
+                <th>Amount</th>
+
+                <th>Status</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {orders.length === 0 ? (
+
+                <tr>
+
+                  <td
+                    colSpan="4"
+                    style={{
+                      textAlign: "center",
+                      padding: "25px",
+                    }}
+                  >
+
+                    No Orders Found
+
+                  </td>
+
+                </tr>
+
+              ) : (
+
+                orders.map((order) => (
+
+                  <tr key={order._id}>
+
+                    <td>
+
+                      {order.customerName ||
+                        order.name ||
+                        "Customer"}
+
+                    </td>
+
+                    <td>
+
+                      {(order.products || [])
+
+                        .map((item) => item.name)
+
+                        .join(", ")}
+
+                    </td>
+
+                    <td>
+
+                      ₹
+
+                      {order.totalAmount ||
+                        order.totalPrice ||
+                        0}
+
+                    </td>
+
+                    <td>
+
+                      <span className="status-badge">
+
+                        {order.status ||
+                          "Pending"}
+
+                      </span>
+
+                    </td>
+
+                  </tr>
+
+                ))
+
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
+      {/* ======================================
+          END OF DASHBOARD BODY
+      ====================================== */}
+            {/* ======================================
+          ANALYTICS
+      ====================================== */}
+
+      <section className="admin-section">
+
+        <h2>📊 Dashboard Analytics</h2>
+
+        <div className="analytics-grid">
+
+          <div className="analytics-card">
+
+            <h3>Today's Orders</h3>
+
+            <h1>{orders.length}</h1>
+
+            <p>Orders received today</p>
+
+          </div>
+
+          <div className="analytics-card">
+
+            <h3>Products Available</h3>
+
+            <h1>{products.length}</h1>
+
+            <p>Products in store</p>
+
+          </div>
+
+          <div className="analytics-card">
+
+            <h3>Registered Users</h3>
+
+            <h1>{users.length}</h1>
+
+            <p>Total customers</p>
+
+          </div>
+
+          <div className="analytics-card">
+
+            <h3>Total Revenue</h3>
+
+            <h1>
+
+              ₹
+
+              {stats.totalRevenue.toLocaleString(
+                "en-IN"
+              )}
+
+            </h1>
+
+            <p>Overall earnings</p>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* ======================================
+          RECENT ACTIVITY
+      ====================================== */}
+
+      <section className="admin-section">
+
+        <h2>📝 Recent Activity</h2>
+
+        <div className="activity-list">
+
+          {orders.length === 0 ? (
+
+            <p>No recent activity.</p>
+
+          ) : (
+
+            orders
+
+              .slice(0, 5)
+
+              .map((order) => (
+
+                <div
+                  key={order._id}
+                  className="activity-card"
+                >
+
+                  <h4>
+
+                    📦 New Order
+
+                  </h4>
+
+                  <p>
+
+                    Customer :
+
+                    {" "}
+
+                    {order.customerName ||
+
+                      order.name ||
+
+                      "Customer"}
+
+                  </p>
+
+                  <p>
+
+                    Amount :
+
+                    ₹
+
+                    {order.totalAmount ||
+
+                      order.totalPrice ||
+
+                      0}
+
+                  </p>
+
+                  <span>
+
+                    {order.status ||
+
+                      "Pending"}
+
+                  </span>
+
+                </div>
+
+              ))
+
+          )}
+
+        </div>
+
+      </section>
+
+      {/* ======================================
+          QUICK ACTIONS
+      ====================================== */}
+
+      <section className="admin-section">
+
+        <h2>⚡ Quick Actions</h2>
+
+        <div className="quick-actions">
+
+          <button
+            className="action-btn"
+            onClick={() =>
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              })
+            }
+          >
+
+            ⬆ Back to Top
+
+          </button>
+
+          <button
+            className="action-btn"
+            onClick={fetchProducts}
+          >
+
+            🔄 Refresh Products
+
+          </button>
+
+          <button
+            className="action-btn"
+            onClick={fetchOrders}
+          >
+
+            🛒 Refresh Orders
+
+          </button>
+
+          <button
+            className="action-btn"
+            onClick={fetchUsers}
+          >
+
+            👥 Refresh Users
+
+          </button>
+
+        </div>
+
+      </section>
+
+      {/* ======================================
+          MOBILE NOTE
+      ====================================== */}
+
+      <section className="admin-section">
+
+        <div className="admin-info">
+
+          <h3>
+
+            📱 Responsive Dashboard
+
+          </h3>
+
+          <p>
+
+            This dashboard is optimized for Desktop,
+
+            Tablet and Mobile devices.
+
+          </p>
+
+        </div>
+
+      </section>
+            {/* ======================================
+          SIDEBAR SHORTCUTS
+      ====================================== */}
+
+      <section className="admin-section">
+
+        <h2>🚀 Quick Navigation</h2>
+
+        <div className="shortcut-grid">
+
+          <button
+            className="shortcut-btn"
+            onClick={() =>
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              })
+            }
+          >
+            🏠 Dashboard
+          </button>
+
+          <button
+            className="shortcut-btn"
+            onClick={() =>
+              document
+                .querySelector(".product-form")
+                ?.scrollIntoView({
+                  behavior: "smooth",
+                })
+            }
+          >
+            📦 Products
+          </button>
+
+          <button
+            className="shortcut-btn"
+            onClick={() =>
+              document
+                .querySelector(".users-table")
+                ?.scrollIntoView({
+                  behavior: "smooth",
+                })
+            }
+          >
+            👥 Users
+          </button>
+
+          <button
+            className="shortcut-btn"
+            onClick={() =>
+              document
+                .querySelector(".orders-table")
+                ?.scrollIntoView({
+                  behavior: "smooth",
+                })
+            }
+          >
+            🛒 Orders
+          </button>
+
+        </div>
+
+      </section>
+
+      {/* ======================================
+          SYSTEM INFORMATION
+      ====================================== */}
+
+      <section className="admin-section">
+
+        <h2>💻 System Information</h2>
+
+        <div className="system-info">
+
+          <div className="info-box">
+
+            <h4>Website</h4>
+
+            <p>{settings.websiteName}</p>
+
+          </div>
+
+          <div className="info-box">
+
+            <h4>Version</h4>
+
+            <p>v2.0</p>
+
+          </div>
+
+          <div className="info-box">
+
+            <h4>Environment</h4>
+
+            <p>Production</p>
+
+          </div>
+
+          <div className="info-box">
+
+            <h4>Status</h4>
+
+            <p className="online">
+
+              🟢 Online
+
+            </p>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* ======================================
+          ADMIN PROFILE
+      ====================================== */}
+
+      <section className="admin-section">
+
+        <h2>👤 Admin Profile</h2>
+
+        <div className="admin-profile">
+
+          <div>
+
+            <h3>
+
+              {settings.adminUsername || "Administrator"}
+
+            </h3>
+
+            <p>
+
+              {settings.email || "admin@amashop.com"}
+
+            </p>
+
+          </div>
+
+          <button
+
+            className="logout-btn"
+
+            onClick={() => {
+
+              localStorage.removeItem("user");
+
+              window.location.href = "/home";
+
+            }}
+
+          >
+
+            🚪 Logout
+
+          </button>
+
+        </div>
+
+      </section>
+
+      {/* ======================================
+          FOOTER
+      ====================================== */}
+
+      <footer className="admin-footer">
+
+        <p>
+
+          © {new Date().getFullYear()}
+
+          {" "}
+
+          {settings.websiteName}
+
+          {" "}Admin Dashboard
+
+        </p>
+
+        <p>
+
+          Developed with ❤️ using React + Node + MongoDB
+
+        </p>
+
+      </footer>
+            {/* ======================================
+          DASHBOARD SUMMARY
+      ====================================== */}
+
+      <section className="admin-section">
+
+        <h2>📋 Dashboard Summary</h2>
+
+        <div className="summary-box">
+
+          <p>
+
+            Total Users :
+            <strong> {stats.totalUsers}</strong>
+
+          </p>
+
+          <p>
+
+            Total Products :
+            <strong> {stats.totalProducts}</strong>
+
+          </p>
+
+          <p>
+
+            Total Orders :
+            <strong> {stats.totalOrders}</strong>
+
+          </p>
+
+          <p>
+
+            Total Revenue :
+            <strong>
+
+              ₹{stats.totalRevenue.toLocaleString("en-IN")}
+
+            </strong>
+
+          </p>
+
+        </div>
+
+      </section>
+
+    </div>
 
   );
 

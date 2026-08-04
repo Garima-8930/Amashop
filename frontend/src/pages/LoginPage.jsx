@@ -1,163 +1,245 @@
 // src/pages/LoginPage.js
+
 import React, { useState } from "react";
 
 const LoginPage = () => {
+
   const [email, setEmail] = useState("");
+
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    let role = "user";
 
-    // 🔐 FIXED ADMIN LOGIN (HIDDEN)
+    // =========================
+    // ADMIN LOGIN
+    // =========================
+
     if (
+
       email === "garima@gmail.com" &&
+
       password === "8930664976"
+
     ) {
-      role = "admin";
-    } else if (email.includes("@gmail")) {
-      role = "user";
-    } else {
-      alert("Invalid credentials ❌");
-      return;
-    }
 
-    const user = {
-      name: email.split("@")[0],
-      email,
-      role,
-    };
+      const admin = {
 
-    // 🔥 Save current user
-    localStorage.setItem("user", JSON.stringify(user));
+        name: "Garima",
 
-    // 🔥 Save users list (for Admin Dashboard)
-    const existingUsers =
-      JSON.parse(localStorage.getItem("users")) || [];
+        email,
 
-    const alreadyExists = existingUsers.find(
-      (u) => u.email === user.email
-    );
+        role: "admin",
 
-    if (!alreadyExists) {
-      existingUsers.push(user);
+      };
+
       localStorage.setItem(
-        "users",
-        JSON.stringify(existingUsers)
+        "user",
+        JSON.stringify(admin)
       );
+
+      window.location.href = "/admin";
+
+      return;
+
     }
 
-    // 🔀 Redirect
-    if (role === "admin") {
-      window.location.href = "/admin";
-    } else {
-      window.location.href = "/home";
+    // =========================
+    // SELLER LOGIN
+    // =========================
+
+    if (
+
+      email.endsWith("@seller.com") &&
+
+      password.length >= 4
+
+    ) {
+
+      const seller = {
+
+        name: email.split("@")[0],
+
+        email,
+
+        role: "seller",
+
+      };
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(seller)
+      );
+
+      window.location.href = "/seller";
+
+      return;
+
     }
+
+    alert("Invalid Admin / Seller Credentials");
+
   };
 
   return (
+
     <div style={styles.container}>
+
       <div style={styles.card}>
-        <h2 style={styles.title}>Welcome Back 👋</h2>
-        <p style={styles.subtitle}>Login to continue</p>
 
-        <div style={styles.inputBox}>
-          <span style={styles.icon}>📧</span>
-          <input
-            type="email"
-            placeholder="Email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={styles.input}
-          />
-        </div>
+        <h2 style={styles.title}>
 
-        <div style={styles.inputBox}>
-          <span style={styles.icon}>🔒</span>
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={styles.input}
-          />
-        </div>
+          Admin / Seller Login
+
+        </h2>
+
+        <p style={styles.subtitle}>
+
+          Users can browse the website without login.
+
+        </p>
+
+        <input
+
+          type="email"
+
+          placeholder="Email"
+
+          value={email}
+
+          onChange={(e) =>
+
+            setEmail(e.target.value)
+
+          }
+
+          style={styles.input}
+
+        />
+
+        <input
+
+          type="password"
+
+          placeholder="Password"
+
+          value={password}
+
+          onChange={(e) =>
+
+            setPassword(e.target.value)
+
+          }
+
+          style={styles.input}
+
+        />
 
         <button
+
           onClick={handleLogin}
+
           style={styles.button}
+
         >
-          Login 🚀
+
+          Login
+
         </button>
+
       </div>
+
     </div>
+
   );
+
 };
 
 const styles = {
+
   container: {
+
     height: "100vh",
+
     display: "flex",
+
     justifyContent: "center",
+
     alignItems: "center",
-    background:
-      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+
+    background: "#0d0d0d",
+
   },
 
   card: {
-    width: "350px",
-    padding: "40px",
-    borderRadius: "16px",
-    background: "rgba(255, 255, 255, 0.25)",
-    backdropFilter: "blur(10px)",
-    boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+
+    width: "380px",
+
+    background: "#1b1b1b",
+
+    padding: "35px",
+
+    borderRadius: "12px",
+
     textAlign: "center",
+
   },
 
   title: {
-    fontSize: "26px",
-    fontWeight: "bold",
-    color: "#fff",
+
+    color: "#FFD700",
+
+    marginBottom: "10px",
+
   },
 
   subtitle: {
-    color: "#eee",
+
+    color: "#ccc",
+
     marginBottom: "25px",
-  },
 
-  inputBox: {
-    display: "flex",
-    alignItems: "center",
-    background: "rgba(255,255,255,0.9)",
-    borderRadius: "10px",
-    marginBottom: "15px",
-    padding: "10px",
-  },
-
-  icon: {
-    marginRight: "8px",
   },
 
   input: {
-    border: "none",
-    outline: "none",
+
     width: "100%",
-    background: "transparent",
-    fontSize: "14px",
+
+    padding: "14px",
+
+    marginBottom: "15px",
+
+    borderRadius: "8px",
+
+    border: "1px solid #444",
+
+    background: "#111",
+
+    color: "#fff",
+
   },
 
   button: {
+
     width: "100%",
-    padding: "12px",
-    borderRadius: "10px",
+
+    padding: "14px",
+
     border: "none",
+
+    borderRadius: "8px",
+
+    background: "#FFD700",
+
+    color: "#111",
+
     fontWeight: "bold",
-    color: "#fff",
-    fontSize: "16px",
+
     cursor: "pointer",
-    background:
-      "linear-gradient(135deg, #6a11cb, #2575fc)",
-    marginTop: "10px",
+
+    fontSize: "16px",
+
   },
+
 };
 
 export default LoginPage;

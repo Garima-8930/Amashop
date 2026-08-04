@@ -55,13 +55,15 @@ function Navbar() {
   // LOGOUT
   // ==========================
 
-  const logoutHandler = () => {
-    localStorage.removeItem("user");
+ const logoutHandler = () => {
 
-    navigate("/login");
+  localStorage.removeItem("user");
 
-    window.location.reload();
-  };
+  navigate("/home");
+
+  window.location.reload();
+
+};
 
   // ==========================
   // SEARCH
@@ -78,7 +80,15 @@ function Navbar() {
   };
 
   // ==========================
-  // RETURN START
+  // CLOSE MENU
+  // ==========================
+
+  const closeMenu = () => {
+    setMenuOpen(false);
+  };
+
+  // ==========================
+  // RETURN
   // ==========================
 
   return (
@@ -87,11 +97,9 @@ function Navbar() {
       {/* ================= LOGO ================= */}
 
       <div className="logo">
-
-        <Link to="/home">
+        <Link to="/" onClick={closeMenu}>
           <span>AMA</span>SHOP
         </Link>
-
       </div>
 
       {/* ================= SEARCH ================= */}
@@ -100,10 +108,9 @@ function Navbar() {
         className="search-form"
         onSubmit={handleSearch}
       >
-
         <input
           type="text"
-          placeholder="Search products..."
+          placeholder="Search Products..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -111,7 +118,6 @@ function Navbar() {
         <button type="submit">
           <FaSearch />
         </button>
-
       </form>
 
       {/* ================= MOBILE MENU ================= */}
@@ -123,7 +129,7 @@ function Navbar() {
         {menuOpen ? <FaTimes /> : <FaBars />}
       </button>
 
-      {/* ================= NAV LINKS ================= */}
+      {/* ================= NAVIGATION ================= */}
 
       <div
         className={`nav-links ${
@@ -131,21 +137,20 @@ function Navbar() {
         }`}
       >
 
-        {/* USER */}
+        {/* HOME */}
+
+        <Link to="/" onClick={closeMenu}>
+          <FaHome /> Home
+        </Link>
+
+        {/* USER LINKS */}
 
         {user?.role === "user" && (
           <>
             <Link
-              to="/home"
-              onClick={() => setMenuOpen(false)}
-            >
-              <FaHome /> Home
-            </Link>
-
-            <Link
               to="/cart"
               className="cart-link"
-              onClick={() => setMenuOpen(false)}
+              onClick={closeMenu}
             >
               <FaShoppingCart />
 
@@ -157,52 +162,48 @@ function Navbar() {
                 </span>
               )}
             </Link>
+
+            <Link
+              to="/orders"
+              onClick={closeMenu}
+            >
+              📦 My Orders
+            </Link>
           </>
         )}
-<Link
-  to="/orders"
-  onClick={() => setMenuOpen(false)}
->
-  📦 My Orders
-</Link>
+
         {/* SELLER */}
 
-        {user?.role === "seller" && (
-          <Link
-            to="/seller"
-            onClick={() => setMenuOpen(false)}
-          >
-            <FaStore />
-
-            Seller Dashboard
-          </Link>
-        )}
+        <Link
+          to="/seller"
+          onClick={closeMenu}
+        >
+          <FaStore />
+          Seller
+        </Link>
 
         {/* ADMIN */}
 
-        {user?.role === "admin" && (
-          <Link
-            to="/admin"
-            onClick={() => setMenuOpen(false)}
-          >
-            <FaUserShield />
-
-            Admin Dashboard
-          </Link>
-        )}
+        <Link
+          to="/admin"
+          onClick={closeMenu}
+        >
+          <FaUserShield />
+          Admin
+        </Link>
 
         {/* LOGIN */}
 
         {!user && (
           <Link
             to="/login"
-            onClick={() => setMenuOpen(false)}
+            onClick={closeMenu}
           >
             Login
           </Link>
         )}
 
-        {/* USER INFO */}
+        {/* PROFILE */}
 
         {user && (
 
@@ -214,9 +215,7 @@ function Navbar() {
 
               <span>
 
-                Hi,
-                {" "}
-                {user.name}
+                Hi, {user.name}
 
               </span>
 
@@ -226,11 +225,8 @@ function Navbar() {
               className="logout-btn"
               onClick={logoutHandler}
             >
-
               <FaSignOutAlt />
-
               Logout
-
             </button>
 
           </div>
