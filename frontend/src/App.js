@@ -7,6 +7,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
@@ -24,14 +25,103 @@ import AdminDashboard from "./pages/AdminDashboard";
 import { CartProvider } from "./context/CartContext";
 import { OrderProvider } from "./context/OrderContext";
 
+// =====================================================
+// GET CURRENT USER
+// =====================================================
+
+const getCurrentUser = () => {
+  try {
+    const user = localStorage.getItem("user");
+
+    if (!user) {
+      return null;
+    }
+
+    return JSON.parse(user);
+  } catch (error) {
+    console.error("Invalid user data:", error);
+
+    localStorage.removeItem("user");
+
+    return null;
+  }
+};
+
+// =====================================================
+// PROTECTED ROUTE
+// =====================================================
+
+const ProtectedRoute = ({ allowedRole, children }) => {
+  const location = useLocation();
+
+  const user = getCurrentUser();
+
+  // No user logged in
+  if (!user) {
+    return (
+      <Navigate
+        to="/login"
+        state={{
+          redirectTo: location.pathname,
+          role: allowedRole,
+        }}
+        replace
+      />
+    );
+  }
+
+  // User exists but wrong role
+  if (user.role !== allowedRole) {
+    alert(
+      `Access denied ❌ ${allowedRole} only`
+    );
+
+    return (
+      <Navigate
+        to="/home"
+        replace
+      />
+    );
+  }
+
+  // Correct role
+  return children;
+};
+
+// =====================================================
+// USER ROUTE
+// =====================================================
+
+const UserRoute = ({ children }) => {
+  const location = useLocation();
+
+  const user = getCurrentUser();
+
+  // User can access these pages even without login.
+  // Login requirement can be handled by the individual pages.
+  if (!user) {
+    return children;
+  }
+
+  // Admin/Seller should not be treated as normal user
+  if (
+    user.role === "admin" ||
+    user.role === "seller"
+  ) {
+    return children;
+  }
+
+  return children;
+};
+
+// =====================================================
+// APP
+// =====================================================
+
 function App() {
-
   return (
-
     <Router>
-
       <OrderProvider>
-
         <CartProvider>
 
           {/* ==========================
@@ -51,21 +141,13 @@ function App() {
             ========================== */}
 
             <Route
-
               path="/"
-
               element={
-
                 <Navigate
-
                   to="/home"
-
                   replace
-
                 />
-
               }
-
             />
 
             {/* ==========================
@@ -73,15 +155,10 @@ function App() {
             ========================== */}
 
             <Route
-
               path="/home"
-
               element={
-
                 <HomePage />
-
               }
-
             />
 
             {/* ==========================
@@ -89,60 +166,66 @@ function App() {
             ========================== */}
 
             <Route
-
               path="/login"
-
               element={
-
                 <LoginPage />
-
               }
-
             />
-                        {/* ==========================
+
+            {/* ==========================
                 USER ROUTES
             ========================== */}
 
             <Route
               path="/cart"
               element={
-                <CartPage />
+                <UserRoute>
+                  <CartPage />
+                </UserRoute>
               }
             />
 
             <Route
               path="/checkout"
               element={
-                <CheckoutPage />
+                <UserRoute>
+                  <CheckoutPage />
+                </UserRoute>
               }
             />
 
             <Route
               path="/orders"
               element={
-                <OrdersPage />
+                <UserRoute>
+                  <OrdersPage />
+                </UserRoute>
               }
             />
 
             {/* ==========================
-                SELLER
+                SELLER ROUTE
             ========================== */}
 
             <Route
               path="/seller"
               element={
-                <SellerDashboard />
+                <ProtectedRoute allowedRole="seller">
+                  <SellerDashboard />
+                </ProtectedRoute>
               }
             />
 
             {/* ==========================
-                ADMIN
+                ADMIN ROUTE
             ========================== */}
 
             <Route
               path="/admin"
               element={
-                <AdminDashboard />
+                <ProtectedRoute allowedRole="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
               }
             />
 
@@ -163,13 +246,9 @@ function App() {
           </Routes>
 
         </CartProvider>
-
       </OrderProvider>
-
     </Router>
-
   );
-
 }
 
 export default App;
