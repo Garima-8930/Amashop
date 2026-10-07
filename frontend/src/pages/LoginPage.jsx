@@ -1,67 +1,35 @@
 // src/pages/LoginPage.jsx
 
-import React, {
-  useState,
-} from "react";
-
-import {
-  useNavigate,
-  useLocation,
-} from "react-router-dom";
-
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./LoginPage.css";
 
 const LoginPage = () => {
-
-  const navigate =
-    useNavigate();
-
-  const location =
-    useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // =====================================
   // STATES
   // =====================================
 
-  const [email, setEmail] =
-    useState("");
-
-  const [password, setPassword] =
-    useState("");
-
-  const [loading, setLoading] =
-    useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // =====================================
-  // REDIRECT PATH
+  // LOGIN ROLE
   // =====================================
 
-  const redirectTo =
+  const loginRole = location.state?.role || "user";
 
-    location.state?.redirectTo ||
-
-    "/";
-
-  const loginRole =
-
-    location.state?.role ||
-
-    "user";
+  const redirectTo = location.state?.redirectTo || "/home";
 
   // =====================================
   // SAVE USER
   // =====================================
 
   const saveUser = (user) => {
-
-    localStorage.setItem(
-
-      "user",
-
-      JSON.stringify(user)
-
-    );
-
+    localStorage.setItem("user", JSON.stringify(user));
   };
 
   // =====================================
@@ -69,60 +37,40 @@ const LoginPage = () => {
   // =====================================
 
   const saveUserList = (user) => {
-
     const users =
+      JSON.parse(localStorage.getItem("users")) || [];
 
-      JSON.parse(
-
-        localStorage.getItem("users")
-
-      ) || [];
-
-    const exists = users.find(
-
-      (u) =>
-
-        u.email === user.email
-
+    const existingIndex = users.findIndex(
+      (u) => u.email === user.email
     );
 
-    if (!exists) {
-
+    if (existingIndex >= 0) {
+      users[existingIndex] = user;
+    } else {
       users.push(user);
-
-      localStorage.setItem(
-
-        "users",
-
-        JSON.stringify(users)
-
-      );
-
     }
 
+    localStorage.setItem(
+      "users",
+      JSON.stringify(users)
+    );
   };
-    // =====================================
+
+  // =====================================
   // LOGIN
   // =====================================
 
   const handleLogin = async (e) => {
-
     e.preventDefault();
 
     if (!email.trim()) {
-
       alert("Please enter email.");
-
       return;
-
     }
 
     if (!password.trim()) {
-
       alert("Please enter password.");
-
       return;
-
     }
 
     setLoading(true);
@@ -131,58 +79,34 @@ const LoginPage = () => {
     // ADMIN LOGIN
     // =====================================
 
-    if (
-
-      loginRole === "admin" ||
-
-      (
-
-        email === "garima@gmail.com" &&
-
-        password === "8930664976"
-
-      )
-
-    ) {
+    if (loginRole === "admin") {
+      const ADMIN_EMAIL = "garima@gmail.com";
+      const ADMIN_PASSWORD = "8930664976";
 
       if (
-
-        email !== "garima@gmail.com" ||
-
-        password !== "8930664976"
-
+        email.trim().toLowerCase() !==
+          ADMIN_EMAIL ||
+        password !== ADMIN_PASSWORD
       ) {
-
         alert("Invalid Admin Credentials");
-
         setLoading(false);
-
         return;
-
       }
 
       const adminUser = {
-
         name: "Admin",
-
-        email,
-
+        email: ADMIN_EMAIL,
         role: "admin",
-
       };
 
       saveUser(adminUser);
-
       saveUserList(adminUser);
 
       navigate("/admin", {
-
         replace: true,
-
       });
 
       return;
-
     }
 
     // =====================================
@@ -190,110 +114,90 @@ const LoginPage = () => {
     // =====================================
 
     if (loginRole === "seller") {
+      // Any seller can login with their own
+      // email and password.
 
       const sellerUser = {
-
-        name: email.split("@")[0],
-
-        email,
-
+        name: email
+          .split("@")[0]
+          .replace(/[._-]/g, " "),
+        email: email.trim().toLowerCase(),
         role: "seller",
-
       };
 
       saveUser(sellerUser);
-
       saveUserList(sellerUser);
 
       navigate("/seller", {
-
         replace: true,
-
       });
 
       return;
-
     }
 
     // =====================================
-    // USER LOGIN
+    // NORMAL USER LOGIN
     // =====================================
 
     const user = {
-
-      name: email.split("@")[0],
-
-      email,
-
+      name: email
+        .split("@")[0]
+        .replace(/[._-]/g, " "),
+      email: email.trim().toLowerCase(),
       role: "user",
-
     };
 
     saveUser(user);
-
     saveUserList(user);
 
     navigate(redirectTo, {
-
       replace: true,
-
     });
-
   };
-    // =====================================
-  // RETURN
+
+  // =====================================
+  // PAGE
   // =====================================
 
   return (
-
     <div className="login-page">
-
       <div className="login-card">
 
+        {/* ===============================
+            HEADER
+        =============================== */}
+
         <div className="login-header">
-
           <h1>
-
             {loginRole === "admin"
-
               ? "👑 Admin Login"
-
               : loginRole === "seller"
-
               ? "🛍 Seller Login"
-
               : "👤 User Login"}
-
           </h1>
 
           <p>
-
             {loginRole === "admin"
-
               ? "Authorized administrators only."
-
               : loginRole === "seller"
-
-              ? "Sign in to manage your products."
-
+              ? "Seller login – use your own account."
               : "Login to continue shopping."}
-
           </p>
-
         </div>
+
+        {/* ===============================
+            LOGIN FORM
+        =============================== */}
 
         <form
           className="login-form"
           onSubmit={handleLogin}
         >
 
+          {/* EMAIL */}
+
           <div className="input-group">
-
-            <label>
-
-              Email Address
-
-            </label>
+            <label>Email Address</label>
 
             <input
               type="email"
@@ -304,16 +208,12 @@ const LoginPage = () => {
               }
               required
             />
-
           </div>
 
+          {/* PASSWORD */}
+
           <div className="input-group">
-
-            <label>
-
-              Password
-
-            </label>
+            <label>Password</label>
 
             <input
               type="password"
@@ -324,73 +224,60 @@ const LoginPage = () => {
               }
               required
             />
-
           </div>
+
+          {/* LOGIN BUTTON */}
 
           <button
             type="submit"
             className="login-button"
             disabled={loading}
           >
-
             {loading
-
               ? "Please Wait..."
-
               : "Login"}
-
           </button>
-                    <div className="login-info">
+
+          {/* INFO */}
+
+          <div className="login-info">
 
             {loginRole === "admin" ? (
-
               <p>
-
                 🔒 Admin access is restricted.
-
               </p>
-
             ) : loginRole === "seller" ? (
-
               <p>
-
-                🛍 Login to manage your products and orders.
-
+                🛍 Sellers can login using their
+                own email and password.
               </p>
-
             ) : (
-
               <p>
-
-                🛒 Login to access your Cart, Orders and Checkout.
-
+                🛒 Login to use Cart, Buy Now,
+                Checkout and Orders.
               </p>
-
             )}
 
           </div>
 
         </form>
 
-        <div className="login-footer">
+        {/* ===============================
+            FOOTER
+        =============================== */}
 
+        <div className="login-footer">
           <button
             className="back-home-btn"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/home")}
           >
-
             ← Back to Home
-
           </button>
-
         </div>
 
       </div>
-
     </div>
-
   );
-
 };
 
 export default LoginPage;
