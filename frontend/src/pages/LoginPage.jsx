@@ -1,30 +1,169 @@
-// src/pages/LoginPage.js
+// src/pages/LoginPage.jsx
 
-import React, { useState } from "react";
+import React, {
+  useState,
+} from "react";
+
+import {
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+
+import "./LoginPage.css";
 
 const LoginPage = () => {
 
-  const [email, setEmail] = useState("");
+  const navigate =
+    useNavigate();
 
-  const [password, setPassword] = useState("");
+  const location =
+    useLocation();
 
-  const handleLogin = () => {
+  // =====================================
+  // STATES
+  // =====================================
 
-    // =========================
+  const [email, setEmail] =
+    useState("");
+
+  const [password, setPassword] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  // =====================================
+  // REDIRECT PATH
+  // =====================================
+
+  const redirectTo =
+
+    location.state?.redirectTo ||
+
+    "/";
+
+  const loginRole =
+
+    location.state?.role ||
+
+    "user";
+
+  // =====================================
+  // SAVE USER
+  // =====================================
+
+  const saveUser = (user) => {
+
+    localStorage.setItem(
+
+      "user",
+
+      JSON.stringify(user)
+
+    );
+
+  };
+
+  // =====================================
+  // SAVE USERS LIST
+  // =====================================
+
+  const saveUserList = (user) => {
+
+    const users =
+
+      JSON.parse(
+
+        localStorage.getItem("users")
+
+      ) || [];
+
+    const exists = users.find(
+
+      (u) =>
+
+        u.email === user.email
+
+    );
+
+    if (!exists) {
+
+      users.push(user);
+
+      localStorage.setItem(
+
+        "users",
+
+        JSON.stringify(users)
+
+      );
+
+    }
+
+  };
+    // =====================================
+  // LOGIN
+  // =====================================
+
+  const handleLogin = async (e) => {
+
+    e.preventDefault();
+
+    if (!email.trim()) {
+
+      alert("Please enter email.");
+
+      return;
+
+    }
+
+    if (!password.trim()) {
+
+      alert("Please enter password.");
+
+      return;
+
+    }
+
+    setLoading(true);
+
+    // =====================================
     // ADMIN LOGIN
-    // =========================
+    // =====================================
 
     if (
 
-      email === "garima@gmail.com" &&
+      loginRole === "admin" ||
 
-      password === "8930664976"
+      (
+
+        email === "garima@gmail.com" &&
+
+        password === "8930664976"
+
+      )
 
     ) {
 
-      const admin = {
+      if (
 
-        name: "Garima",
+        email !== "garima@gmail.com" ||
+
+        password !== "8930664976"
+
+      ) {
+
+        alert("Invalid Admin Credentials");
+
+        setLoading(false);
+
+        return;
+
+      }
+
+      const adminUser = {
+
+        name: "Admin",
 
         email,
 
@@ -32,30 +171,27 @@ const LoginPage = () => {
 
       };
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(admin)
-      );
+      saveUser(adminUser);
 
-      window.location.href = "/admin";
+      saveUserList(adminUser);
+
+      navigate("/admin", {
+
+        replace: true,
+
+      });
 
       return;
 
     }
 
-    // =========================
+    // =====================================
     // SELLER LOGIN
-    // =========================
+    // =====================================
 
-    if (
+    if (loginRole === "seller") {
 
-      email.endsWith("@seller.com") &&
-
-      password.length >= 4
-
-    ) {
-
-      const seller = {
+      const sellerUser = {
 
         name: email.split("@")[0],
 
@@ -65,180 +201,195 @@ const LoginPage = () => {
 
       };
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(seller)
-      );
+      saveUser(sellerUser);
 
-      window.location.href = "/seller";
+      saveUserList(sellerUser);
+
+      navigate("/seller", {
+
+        replace: true,
+
+      });
 
       return;
 
     }
 
-    alert("Invalid Admin / Seller Credentials");
+    // =====================================
+    // USER LOGIN
+    // =====================================
+
+    const user = {
+
+      name: email.split("@")[0],
+
+      email,
+
+      role: "user",
+
+    };
+
+    saveUser(user);
+
+    saveUserList(user);
+
+    navigate(redirectTo, {
+
+      replace: true,
+
+    });
 
   };
+    // =====================================
+  // RETURN
+  // =====================================
 
   return (
 
-    <div style={styles.container}>
+    <div className="login-page">
 
-      <div style={styles.card}>
+      <div className="login-card">
 
-        <h2 style={styles.title}>
+        <div className="login-header">
 
-          Admin / Seller Login
+          <h1>
 
-        </h2>
+            {loginRole === "admin"
 
-        <p style={styles.subtitle}>
+              ? "👑 Admin Login"
 
-          Users can browse the website without login.
+              : loginRole === "seller"
 
-        </p>
+              ? "🛍 Seller Login"
 
-        <input
+              : "👤 User Login"}
 
-          type="email"
+          </h1>
 
-          placeholder="Email"
+          <p>
 
-          value={email}
+            {loginRole === "admin"
 
-          onChange={(e) =>
+              ? "Authorized administrators only."
 
-            setEmail(e.target.value)
+              : loginRole === "seller"
 
-          }
+              ? "Sign in to manage your products."
 
-          style={styles.input}
+              : "Login to continue shopping."}
 
-        />
+          </p>
 
-        <input
+        </div>
 
-          type="password"
-
-          placeholder="Password"
-
-          value={password}
-
-          onChange={(e) =>
-
-            setPassword(e.target.value)
-
-          }
-
-          style={styles.input}
-
-        />
-
-        <button
-
-          onClick={handleLogin}
-
-          style={styles.button}
-
+        <form
+          className="login-form"
+          onSubmit={handleLogin}
         >
 
-          Login
+          <div className="input-group">
 
-        </button>
+            <label>
+
+              Email Address
+
+            </label>
+
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
+              required
+            />
+
+          </div>
+
+          <div className="input-group">
+
+            <label>
+
+              Password
+
+            </label>
+
+            <input
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
+              required
+            />
+
+          </div>
+
+          <button
+            type="submit"
+            className="login-button"
+            disabled={loading}
+          >
+
+            {loading
+
+              ? "Please Wait..."
+
+              : "Login"}
+
+          </button>
+                    <div className="login-info">
+
+            {loginRole === "admin" ? (
+
+              <p>
+
+                🔒 Admin access is restricted.
+
+              </p>
+
+            ) : loginRole === "seller" ? (
+
+              <p>
+
+                🛍 Login to manage your products and orders.
+
+              </p>
+
+            ) : (
+
+              <p>
+
+                🛒 Login to access your Cart, Orders and Checkout.
+
+              </p>
+
+            )}
+
+          </div>
+
+        </form>
+
+        <div className="login-footer">
+
+          <button
+            className="back-home-btn"
+            onClick={() => navigate("/")}
+          >
+
+            ← Back to Home
+
+          </button>
+
+        </div>
 
       </div>
 
     </div>
 
   );
-
-};
-
-const styles = {
-
-  container: {
-
-    height: "100vh",
-
-    display: "flex",
-
-    justifyContent: "center",
-
-    alignItems: "center",
-
-    background: "#0d0d0d",
-
-  },
-
-  card: {
-
-    width: "380px",
-
-    background: "#1b1b1b",
-
-    padding: "35px",
-
-    borderRadius: "12px",
-
-    textAlign: "center",
-
-  },
-
-  title: {
-
-    color: "#FFD700",
-
-    marginBottom: "10px",
-
-  },
-
-  subtitle: {
-
-    color: "#ccc",
-
-    marginBottom: "25px",
-
-  },
-
-  input: {
-
-    width: "100%",
-
-    padding: "14px",
-
-    marginBottom: "15px",
-
-    borderRadius: "8px",
-
-    border: "1px solid #444",
-
-    background: "#111",
-
-    color: "#fff",
-
-  },
-
-  button: {
-
-    width: "100%",
-
-    padding: "14px",
-
-    border: "none",
-
-    borderRadius: "8px",
-
-    background: "#FFD700",
-
-    color: "#111",
-
-    fontWeight: "bold",
-
-    cursor: "pointer",
-
-    fontSize: "16px",
-
-  },
 
 };
 

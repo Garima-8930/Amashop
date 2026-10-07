@@ -1,13 +1,77 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { useOrder } from "../context/OrderContext";
+// src/pages/OrdersPage.jsx
+
+import React, {
+
+  useMemo,
+
+} from "react";
+
+import {
+
+  useNavigate,
+
+} from "react-router-dom";
+
+import {
+
+  useOrder,
+
+} from "../context/OrderContext";
+
 import "./OrdersPage.css";
 
 const OrdersPage = () => {
 
-  const { orders } = useOrder();
+  const navigate =
 
-  const navigate = useNavigate();
+    useNavigate();
+
+  const { orders } =
+
+    useOrder();
+
+  const user =
+
+    JSON.parse(
+
+      localStorage.getItem(
+
+        "user"
+
+      )
+
+    );
+
+  // =====================================
+  // USER ORDERS
+  // =====================================
+
+  const myOrders = useMemo(() => {
+
+    if (!user)
+
+      return [];
+
+    return orders.filter(
+
+      (order) =>
+
+        order.customer?.email ===
+
+        user.email
+
+    );
+
+  }, [
+
+    orders,
+
+    user,
+
+  ]);
+    // =====================================
+  // RETURN
+  // =====================================
 
   return (
 
@@ -19,28 +83,27 @@ const OrdersPage = () => {
 
       </h1>
 
-      {orders.length === 0 ? (
+      {myOrders.length === 0 ? (
 
         <div className="empty-orders">
 
           <h2>
 
-            No Orders Yet
+            No Orders Found
 
           </h2>
 
           <p>
 
-            Start shopping and your orders will appear here.
+            You haven't placed any orders yet.
 
           </p>
 
           <button
-
             className="shop-btn"
-
-            onClick={() => navigate("/home")}
-
+            onClick={() =>
+              navigate("/home")
+            }
           >
 
             Continue Shopping
@@ -53,149 +116,362 @@ const OrdersPage = () => {
 
         <div className="orders-container">
 
-          {orders.map((order, index) => {
+          {myOrders.map((order) => (
 
-            const total = order.items.reduce(
+            <div
+              className="order-card"
+              key={order.orderId}
+            >
 
-              (sum, item) =>
+              {/* ==========================
+                  ORDER HEADER
+              ========================== */}
 
-                sum + item.price * (item.qty || item.quantity || 1),
+              <div className="order-header">
 
-              0
+                <div>
 
-            );
+                  <h2>
 
-            return (
+                    Order ID
 
-              <div
+                  </h2>
 
-                className="order-card"
+                  <p>
 
-                key={index}
+                    {order.orderId}
 
-              >
+                  </p>
 
-                <div className="order-header">
+                  <small>
 
-                  <div>
+                    {order.orderDate}
 
-                    <h2>
-
-                      Order #{index + 1}
-
-                    </h2>
-
-                    <p>
-
-                      {new Date(order.date).toLocaleString()}
-
-                    </p>
-
-                  </div>
-
-                  <span className="status">
-
-                    Delivered
-
-                  </span>
+                  </small>
 
                 </div>
 
-                <div className="order-products">
-                                    {order.items.map((item, i) => (
+                <div
+                  className={`status ${order.orderStatus?.toLowerCase()}`}
+                >
 
-                    <div
-                      className="order-item"
-                      key={i}
-                    >
-
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="order-image"
-                      />
-
-                      <div className="order-info">
-
-                        <h3>
-                          {item.name}
-                        </h3>
-
-                        <p>
-                          Qty :
-                          {" "}
-                          {item.qty || item.quantity || 1}
-                        </p>
-
-                        <p className="price">
-
-                          ₹{item.price}
-
-                        </p>
-
-                      </div>
-
-                      <div className="item-total">
-
-                        ₹
-                        {item.price *
-                          (item.qty ||
-                            item.quantity ||
-                            1)}
-
-                      </div>
-
-                    </div>
-
-                  ))}
+                  {order.orderStatus}
 
                 </div>
 
-                <hr />
+              </div>
+                            {/* ==========================
+                  CUSTOMER DETAILS
+              ========================== */}
 
-                <div className="order-footer">
+              <div className="customer-details">
 
-                  <div>
+                <div className="detail-box">
 
-                    <strong>
+                  <h3>
 
-                      Payment
+                    👤 Customer
 
-                    </strong>
+                  </h3>
 
-                    <br />
+                  <p>
 
-                    Cash on Delivery
+                    <strong>Name:</strong>{" "}
 
-                  </div>
+                    {order.customer?.name}
 
-                  <div>
+                  </p>
 
-                    <strong>
+                  <p>
 
-                      Total
+                    <strong>Email:</strong>{" "}
 
-                    </strong>
+                    {order.customer?.email}
 
-                    <br />
+                  </p>
 
-                    <span className="grand-total">
+                  <p>
 
-                      ₹{total}
+                    <strong>Mobile:</strong>{" "}
 
-                    </span>
+                    {order.customer?.mobile}
 
-                  </div>
+                  </p>
+
+                </div>
+
+                <div className="detail-box">
+
+                  <h3>
+
+                    🚚 Delivery Address
+
+                  </h3>
+
+                  <p>
+
+                    {order.address?.address}
+
+                  </p>
+
+                  <p>
+
+                    {order.address?.city},{" "}
+
+                    {order.address?.state}
+
+                  </p>
+
+                  <p>
+
+                    PIN : {order.address?.pincode}
+
+                  </p>
 
                 </div>
 
               </div>
 
-            );
+              {/* ==========================
+                  PAYMENT
+              ========================== */}
 
-          })}
+              <div className="payment-details">
 
-        </div>
+                <div>
+
+                  <strong>
+
+                    Payment Method
+
+                  </strong>
+
+                  <p>
+
+                    {order.paymentMethod}
+
+                  </p>
+
+                </div>
+
+                <div>
+
+                  <strong>
+
+                    Payment Status
+
+                  </strong>
+
+                  <p>
+
+                    {order.paymentStatus}
+
+                  </p>
+
+                </div>
+
+                {order.paymentMethod === "UPI" && (
+
+                  <div>
+
+                    <strong>
+
+                      Transaction ID
+
+                    </strong>
+
+                    <p>
+
+                      {order.transactionId}
+
+                    </p>
+
+                  </div>
+
+                )}
+
+              </div>
+
+              {/* ==========================
+                  PRODUCTS
+              ========================== */}
+
+              <div className="order-products">
+
+                {order.products?.map((product) => (
+
+                  <div
+                    className="order-item"
+                    key={product._id}
+                  >
+
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="order-image"
+                    />
+
+                    <div className="order-info">
+
+                      <h3>
+
+                        {product.name}
+
+                      </h3>
+
+                      <p>
+
+                        Qty : {product.qty || 1}
+
+                      </p>
+
+                      <p>
+
+                        ₹{product.price}
+
+                      </p>
+
+                    </div>
+
+                    <div className="item-total">
+
+                      ₹
+
+                      {(Number(product.price) || 0) *
+
+                        (Number(product.qty) || 1)}
+
+                    </div>
+
+                  </div>
+
+                ))}
+
+              </div>
+                            <hr />
+
+              {/* ==========================
+                  ORDER SUMMARY
+              ========================== */}
+
+              <div className="order-summary">
+
+                <div className="summary-row">
+
+                  <span>
+
+                    Subtotal
+
+                  </span>
+
+                  <span>
+
+                    ₹{order.subTotal}
+
+                  </span>
+
+                </div>
+
+                <div className="summary-row">
+
+                  <span>
+
+                    Delivery Charge
+
+                  </span>
+
+                  <span>
+
+                    {order.deliveryCharge === 0
+
+                      ? "FREE"
+
+                      : `₹${order.deliveryCharge}`}
+
+                  </span>
+
+                </div>
+
+                <div className="summary-row">
+
+                  <span>
+
+                    Discount
+
+                  </span>
+
+                  <span>
+
+                    - ₹{order.discount}
+
+                  </span>
+
+                </div>
+
+                <hr />
+
+                <div className="summary-total">
+
+                  <span>
+
+                    Grand Total
+
+                  </span>
+
+                  <span>
+
+                    ₹{order.total}
+
+                  </span>
+
+                </div>
+
+              </div>
+
+              {/* ==========================
+                  ORDER FOOTER
+              ========================== */}
+
+              <div className="order-footer">
+
+                <div>
+
+                  <strong>
+
+                    Order Status
+
+                  </strong>
+
+                  <p>
+
+                    {order.orderStatus}
+
+                  </p>
+
+                </div>
+
+                <div>
+
+                  <strong>
+
+                    Payment Status
+
+                  </strong>
+
+                  <p>
+
+                    {order.paymentStatus}
+
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          ))}
+                  </div>
 
       )}
 

@@ -1,6 +1,17 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+// src/pages/CheckoutPage.jsx
+
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+} from "react";
+
+import {
+  useNavigate,
+} from "react-router-dom";
+
 import { useOrder } from "../context/OrderContext";
+
 import "./CheckoutPage.css";
 
 const CheckoutPage = () => {
@@ -9,41 +20,110 @@ const CheckoutPage = () => {
 
   const { placeOrder } = useOrder();
 
-  // ==========================
-  // BUY NOW / CART PRODUCTS
-  // ==========================
+  // =====================================
+  // CURRENT USER
+  // =====================================
+
+  const user = JSON.parse(
+
+    localStorage.getItem("user")
+
+  );
+
+  // =====================================
+  // LOGIN CHECK
+  // =====================================
+
+  useEffect(() => {
+
+    if (!user) {
+
+      alert(
+
+        "Please login to continue."
+
+      );
+
+      navigate("/login", {
+
+        state: {
+
+          redirectTo: "/checkout",
+
+        },
+
+      });
+
+    }
+
+  }, []);
+
+  // =====================================
+  // PRODUCTS
+  // =====================================
 
   const buyNowProduct =
+
     JSON.parse(
-      localStorage.getItem("buyNowProduct")
+
+      localStorage.getItem(
+
+        "buyNowProduct"
+
+      )
+
     );
 
   const cartItems =
+
     JSON.parse(
-      localStorage.getItem("cartItems")
+
+      localStorage.getItem(
+
+        "cartItems"
+
+      )
+
     ) || [];
 
   const products =
+
     buyNowProduct
+
       ? [buyNowProduct]
+
       : cartItems;
 
-  // ==========================
+  // =====================================
   // WEBSITE SETTINGS
-  // ==========================
+  // =====================================
 
   const websiteSettings =
+
     JSON.parse(
-      localStorage.getItem("websiteSettings")
+
+      localStorage.getItem(
+
+        "websiteSettings"
+
+      )
+
     ) || {};
 
-  // ==========================
+  // =====================================
   // PAYMENT SETTINGS
-  // ==========================
+  // =====================================
 
   const paymentSettings =
+
     JSON.parse(
-      localStorage.getItem("paymentSettings")
+
+      localStorage.getItem(
+
+        "paymentSettings"
+
+      )
+
     ) || {
 
       codEnabled: true,
@@ -57,15 +137,18 @@ const CheckoutPage = () => {
       qrCode: "",
 
     };
-
-  // ==========================
+      // =====================================
   // ADDRESS
-  // ==========================
+  // =====================================
 
   const [address, setAddress] =
     useState({
 
-      fullName: "",
+      fullName:
+        user?.name || "",
+
+      email:
+        user?.email || "",
 
       mobile: "",
 
@@ -79,68 +162,75 @@ const CheckoutPage = () => {
 
     });
 
-  // ==========================
+  // =====================================
   // PAYMENT
-  // ==========================
+  // =====================================
 
   const [paymentMethod, setPaymentMethod] =
     useState(
+
       paymentSettings.codEnabled
+
         ? "COD"
+
         : "UPI"
+
     );
 
   const [transactionId, setTransactionId] =
     useState("");
 
-  // ==========================
-  // ADDRESS CHANGE
-  // ==========================
+  // =====================================
+  // ORDER DETAILS
+  // =====================================
+
+  const orderId = useMemo(() => {
+
+    return (
+
+      "AMA" +
+
+      Date.now()
+
+    );
+
+  }, []);
+
+  const orderDate = useMemo(() => {
+
+    return new Date().toLocaleString();
+
+  }, []);
+
+  // =====================================
+  // HANDLE INPUT
+  // =====================================
 
   const handleChange = (e) => {
 
-    setAddress({
+    const {
 
-      ...address,
+      name,
 
-      [e.target.name]:
-        e.target.value,
+      value,
 
-    });
+    } = e.target;
+
+    setAddress((prev) => ({
+
+      ...prev,
+
+      [name]: value,
+
+    }));
 
   };
 
-  // ==========================
-  // PRICE
-  // ==========================
+  // =====================================
+  // VALIDATION
+  // =====================================
 
-  const subTotal = products.reduce(
-
-  (sum, item) =>
-
-    sum +
-
-    (Number(item.price) || 0) *
-
-    (Number(item.qty) || 1),
-
-  0
-
-);
-
-  const delivery =
-    subTotal >= 1000
-      ? 0
-      : 99;
-
-  const total =
-    subTotal + delivery;
-
-  // ==========================
-  // PLACE ORDER
-  // ==========================
-
-  const handlePlaceOrder = () => {
+  const validateForm = () => {
 
     if (
 
@@ -159,10 +249,12 @@ const CheckoutPage = () => {
     ) {
 
       alert(
-        "Please fill all address details."
+
+        "Please fill all delivery details."
+
       );
 
-      return;
+      return false;
 
     }
 
@@ -175,55 +267,220 @@ const CheckoutPage = () => {
     ) {
 
       alert(
+
         "Please enter Transaction ID."
+
       );
 
-      return;
+      return false;
 
     }
 
-    placeOrder(products, total);
+    return true;
+
+  };
+    // =====================================
+  // PRICE CALCULATION
+  // =====================================
+
+  const subTotal = useMemo(() => {
+
+    return products.reduce(
+
+      (total, item) =>
+
+        total +
+
+        (Number(item.price) || 0) *
+
+        (Number(item.qty) || 1),
+
+      0
+
+    );
+
+  }, [products]);
+
+  const deliveryCharge =
+
+    subTotal >= 1000
+
+      ? 0
+
+      : 99;
+
+  const discount =
+
+    subTotal >= 10000
+
+      ? Math.round(subTotal * 0.10)
+
+      : 0;
+
+  const total =
+
+    subTotal +
+
+    deliveryCharge -
+
+    discount;
+
+  // =====================================
+  // PLACE ORDER
+  // =====================================
+
+  const handlePlaceOrder = () => {
+
+    if (!validateForm()) return;
+
+    const order = {
+
+      orderId,
+
+      orderDate,
+
+      customer: {
+
+        name: address.fullName,
+
+        email: address.email,
+
+        mobile: address.mobile,
+
+      },
+
+      address: {
+
+        address: address.address,
+
+        city: address.city,
+
+        state: address.state,
+
+        pincode: address.pincode,
+
+      },
+
+      products,
+
+      paymentMethod,
+
+      transactionId:
+
+        paymentMethod === "UPI"
+
+          ? transactionId
+
+          : "N/A",
+
+      paymentStatus:
+
+        paymentMethod === "COD"
+
+          ? "Pending"
+
+          : "Paid",
+
+      orderStatus: "Pending",
+
+      subTotal,
+
+      deliveryCharge,
+
+      discount,
+
+      total,
+
+    };
+
+    // =====================================
+    // SAVE USING CONTEXT
+    // =====================================
+
+    placeOrder(order);
+
+    // =====================================
+    // SAVE LOCAL ORDERS
+    // =====================================
+
+    const oldOrders =
+
+      JSON.parse(
+
+        localStorage.getItem("orders")
+
+      ) || [];
+
+    oldOrders.push(order);
+
+    localStorage.setItem(
+
+      "orders",
+
+      JSON.stringify(oldOrders)
+
+    );
+
+    // =====================================
+    // CLEAR CART
+    // =====================================
 
     localStorage.removeItem(
-      "buyNowProduct"
+
+      "cartItems"
+
     );
 
     localStorage.removeItem(
-      "cartItems"
+
+      "buyNowProduct"
+
     );
 
     alert(
-      "Order placed successfully!"
+
+      "Order placed successfully."
+
     );
 
     navigate("/orders");
 
   };
-
-  // ==========================
+    // =====================================
   // RETURN
-  // ==========================
+  // =====================================
 
   return (
-        <div className="checkout-page">
+
+    <div className="checkout-page">
 
       <h1 className="checkout-title">
+
         Secure Checkout
+
       </h1>
 
       <div className="checkout-container">
 
         {/* ==========================
-            PRODUCT SUMMARY
+            ORDER SUMMARY
         ========================== */}
 
         <div className="summary-card">
 
-          <h2>🛒 Your Order</h2>
+          <h2>
+
+            🛒 Order Summary
+
+          </h2>
 
           {products.length === 0 ? (
 
-            <p>Your cart is empty.</p>
+            <p>
+
+              No products available.
+
+            </p>
 
           ) : (
 
@@ -247,21 +504,19 @@ const CheckoutPage = () => {
                     <div className="checkout-info">
 
                       <h3>
+
                         {item.name}
+
                       </h3>
 
                       <p>
 
-                        Quantity :
-                        {" "}
-                        {item.qty || 1}
+                        Qty : {item.qty || 1}
 
                       </p>
 
                       <p>
 
-                        Price :
-                        {" "}
                         ₹{item.price}
 
                       </p>
@@ -288,7 +543,11 @@ const CheckoutPage = () => {
 
               <div className="summary-row">
 
-                <span>Subtotal</span>
+                <span>
+
+                  Subtotal
+
+                </span>
 
                 <span>
 
@@ -300,15 +559,35 @@ const CheckoutPage = () => {
 
               <div className="summary-row">
 
-                <span>Delivery</span>
+                <span>
+
+                  Delivery
+
+                </span>
 
                 <span>
 
-                  {delivery === 0
+                  {deliveryCharge === 0
 
                     ? "FREE"
 
-                    : `₹${delivery}`}
+                    : `₹${deliveryCharge}`}
+
+                </span>
+
+              </div>
+
+              <div className="summary-row">
+
+                <span>
+
+                  Discount
+
+                </span>
+
+                <span>
+
+                  - ₹{discount}
 
                 </span>
 
@@ -318,7 +597,11 @@ const CheckoutPage = () => {
 
               <div className="summary-total">
 
-                <span>Total</span>
+                <span>
+
+                  Grand Total
+
+                </span>
 
                 <span>
 
@@ -333,8 +616,7 @@ const CheckoutPage = () => {
           )}
 
         </div>
-
-        {/* ==========================
+                {/* ==========================
             DELIVERY ADDRESS
         ========================== */}
 
@@ -351,6 +633,14 @@ const CheckoutPage = () => {
             name="fullName"
             placeholder="Full Name"
             value={address.fullName}
+            onChange={handleChange}
+          />
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Email Address"
+            value={address.email}
             onChange={handleChange}
           />
 
@@ -392,13 +682,18 @@ const CheckoutPage = () => {
             value={address.pincode}
             onChange={handleChange}
           />
-                    {/* ==========================
-              PAYMENT SECTION
+
+          {/* ==========================
+              PAYMENT
           ========================== */}
 
           <div className="payment-box">
 
-            <h3>💳 Select Payment Method</h3>
+            <h3>
+
+              💳 Payment Method
+
+            </h3>
 
             {paymentSettings.codEnabled && (
 
@@ -413,7 +708,7 @@ const CheckoutPage = () => {
                   }
                 />
 
-                Cash On Delivery (COD)
+                Cash On Delivery
 
               </label>
 
@@ -444,7 +739,11 @@ const CheckoutPage = () => {
 
                 <p>
 
-                  <strong>UPI ID :</strong>{" "}
+                  <strong>
+
+                    UPI ID :
+
+                  </strong>{" "}
 
                   {paymentSettings.upiId ||
 
@@ -454,7 +753,11 @@ const CheckoutPage = () => {
 
                 <p>
 
-                  <strong>Name :</strong>{" "}
+                  <strong>
+
+                    Name :
+
+                  </strong>{" "}
 
                   {paymentSettings.upiName ||
 
@@ -491,10 +794,6 @@ const CheckoutPage = () => {
 
           </div>
 
-          {/* ==========================
-              PLACE ORDER
-          ========================== */}
-
           <button
             className="place-order-btn"
             onClick={handlePlaceOrder}
@@ -505,8 +804,7 @@ const CheckoutPage = () => {
           </button>
 
         </div>
-
-      </div>
+              </div>
 
     </div>
 

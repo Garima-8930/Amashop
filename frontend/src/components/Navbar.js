@@ -1,135 +1,321 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, {
+  useState,
+  useEffect,
+} from "react";
+
 import {
+  Link,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+
+import {
+  FaHome,
   FaShoppingCart,
-  FaUserCircle,
   FaSearch,
   FaBars,
   FaTimes,
   FaStore,
   FaUserShield,
+  FaUserCircle,
   FaSignOutAlt,
-  FaHome,
 } from "react-icons/fa";
 
 import { useCart } from "../context/CartContext";
+
 import "./Navbar.css";
 
 function Navbar() {
+
   const navigate = useNavigate();
+
+  const location = useLocation();
 
   const { cart } = useCart();
 
-  const [menuOpen, setMenuOpen] = useState(false);
+  // =====================================
+  // STATES
+  // =====================================
 
-  const [search, setSearch] = useState("");
+  const [menuOpen, setMenuOpen] =
+    useState(false);
 
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user"))
-  );
+  const [search, setSearch] =
+    useState("");
 
-  // ==========================
+  const [user, setUser] =
+    useState(
+      JSON.parse(
+        localStorage.getItem("user")
+      )
+    );
+
+  // =====================================
   // LIVE USER UPDATE
-  // ==========================
+  // =====================================
 
   useEffect(() => {
+
     const interval = setInterval(() => {
-      setUser(JSON.parse(localStorage.getItem("user")));
+
+      setUser(
+
+        JSON.parse(
+
+          localStorage.getItem("user")
+
+        )
+
+      );
+
     }, 500);
 
-    return () => clearInterval(interval);
+    return () =>
+      clearInterval(interval);
+
   }, []);
 
-  // ==========================
+  // =====================================
   // CART COUNT
-  // ==========================
+  // =====================================
 
   const totalItems = Array.isArray(cart)
+
     ? cart.reduce(
-        (acc, item) => acc + (item.quantity || item.qty || 1),
+
+        (total, item) =>
+
+          total +
+
+          (item.quantity ||
+
+            item.qty ||
+
+            1),
+
         0
+
       )
+
     : 0;
+      // =====================================
+  // CLOSE MOBILE MENU
+  // =====================================
 
-  // ==========================
+  const closeMenu = () => {
+
+    setMenuOpen(false);
+
+  };
+
+  // =====================================
   // LOGOUT
-  // ==========================
+  // =====================================
 
- const logoutHandler = () => {
+  const logoutHandler = () => {
 
-  localStorage.removeItem("user");
+    localStorage.removeItem("user");
 
-  navigate("/home");
+    setUser(null);
 
-  window.location.reload();
+    closeMenu();
 
-};
+    navigate("/");
 
-  // ==========================
+  };
+
+  // =====================================
   // SEARCH
-  // ==========================
+  // =====================================
 
   const handleSearch = (e) => {
+
     e.preventDefault();
 
     if (!search.trim()) return;
 
-    navigate(`/search/${search}`);
+    navigate(
 
-    setMenuOpen(false);
+      `/search/${search.trim()}`
+
+    );
+
+    closeMenu();
+
   };
 
-  // ==========================
-  // CLOSE MENU
-  // ==========================
+  // =====================================
+  // LOGIN REQUIRED
+  // =====================================
 
-  const closeMenu = () => {
-    setMenuOpen(false);
+  const requireLogin = (path) => {
+
+    if (!user) {
+
+      navigate("/login", {
+
+        state: {
+
+          redirectTo: path,
+
+        },
+
+      });
+
+      return;
+
+    }
+
+    navigate(path);
+
   };
 
-  // ==========================
+  // =====================================
+  // SELLER
+  // =====================================
+
+  const openSeller = () => {
+
+    closeMenu();
+
+    if (
+
+      user?.role === "seller" ||
+
+      user?.role === "admin"
+
+    ) {
+
+      navigate("/seller");
+
+      return;
+
+    }
+
+    navigate("/login", {
+
+      state: {
+
+        role: "seller",
+
+      },
+
+    });
+
+  };
+
+  // =====================================
+  // ADMIN
+  // =====================================
+
+  const openAdmin = () => {
+
+    closeMenu();
+
+    if (
+
+      user?.role === "admin"
+
+    ) {
+
+      navigate("/admin");
+
+      return;
+
+    }
+
+    navigate("/login", {
+
+      state: {
+
+        role: "admin",
+
+      },
+
+    });
+
+  };
+    // =====================================
+  // HIDE NAVBAR ON LOGIN PAGE
+  // =====================================
+
+  if (location.pathname === "/login") {
+
+    return null;
+
+  }
+
+  // =====================================
   // RETURN
-  // ==========================
+  // =====================================
 
   return (
-        <nav className="navbar">
 
-      {/* ================= LOGO ================= */}
+    <nav className="navbar">
+
+      {/* ==========================
+          LOGO
+      ========================== */}
 
       <div className="logo">
-        <Link to="/" onClick={closeMenu}>
+
+        <Link
+          to="/"
+          onClick={closeMenu}
+        >
+
           <span>AMA</span>SHOP
+
         </Link>
+
       </div>
 
-      {/* ================= SEARCH ================= */}
+      {/* ==========================
+          SEARCH
+      ========================== */}
 
       <form
         className="search-form"
         onSubmit={handleSearch}
       >
+
         <input
           type="text"
           placeholder="Search Products..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) =>
+            setSearch(e.target.value)
+          }
         />
 
         <button type="submit">
+
           <FaSearch />
+
         </button>
+
       </form>
 
-      {/* ================= MOBILE MENU ================= */}
+      {/* ==========================
+          MOBILE MENU
+      ========================== */}
 
       <button
         className="menu-btn"
-        onClick={() => setMenuOpen(!menuOpen)}
+        onClick={() =>
+          setMenuOpen(!menuOpen)
+        }
       >
-        {menuOpen ? <FaTimes /> : <FaBars />}
+
+        {menuOpen
+          ? <FaTimes />
+          : <FaBars />}
+
       </button>
 
-      {/* ================= NAVIGATION ================= */}
+      {/* ==========================
+          NAVIGATION
+      ========================== */}
 
       <div
         className={`nav-links ${
@@ -139,71 +325,96 @@ function Navbar() {
 
         {/* HOME */}
 
-        <Link to="/" onClick={closeMenu}>
-          <FaHome /> Home
-        </Link>
-
-        {/* USER LINKS */}
-
-        {user?.role === "user" && (
-          <>
-            <Link
-              to="/cart"
-              className="cart-link"
-              onClick={closeMenu}
-            >
-              <FaShoppingCart />
-
-              Cart
-
-              {totalItems > 0 && (
-                <span className="cart-badge">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
-
-            <Link
-              to="/orders"
-              onClick={closeMenu}
-            >
-              📦 My Orders
-            </Link>
-          </>
-        )}
-
-        {/* SELLER */}
-
         <Link
-          to="/seller"
+          to="/"
           onClick={closeMenu}
         >
-          <FaStore />
-          Seller
+
+          <FaHome />
+
+          Home
+
         </Link>
+
+        {/* CART */}
+
+        <button
+          className="nav-btn"
+          onClick={() =>
+            requireLogin("/cart")
+          }
+        >
+
+          <FaShoppingCart />
+
+          Cart
+
+          {totalItems > 0 && (
+
+            <span className="cart-badge">
+
+              {totalItems}
+
+            </span>
+
+          )}
+
+        </button>
+
+        {/* ORDERS */}
+
+        <button
+          className="nav-btn"
+          onClick={() =>
+            requireLogin("/orders")
+          }
+        >
+
+          📦 Orders
+
+        </button>
+                {/* SELLER */}
+
+        <button
+          className="nav-btn"
+          onClick={openSeller}
+        >
+          <FaStore />
+          Seller Dashboard
+        </button>
 
         {/* ADMIN */}
 
-        <Link
-          to="/admin"
-          onClick={closeMenu}
+        <button
+          className="nav-btn"
+          onClick={openAdmin}
         >
           <FaUserShield />
-          Admin
-        </Link>
+          Admin Dashboard
+        </button>
 
         {/* LOGIN */}
 
         {!user && (
-          <Link
-            to="/login"
-            onClick={closeMenu}
+
+          <button
+            className="login-btn"
+            onClick={() => {
+
+              closeMenu();
+
+              navigate("/login");
+
+            }}
           >
+
             Login
-          </Link>
+
+          </button>
+
         )}
 
-        {/* PROFILE */}
+        {/* USER */}
 
         {user && (
 
@@ -215,7 +426,7 @@ function Navbar() {
 
               <span>
 
-                Hi, {user.name}
+                {user.name}
 
               </span>
 
@@ -225,8 +436,11 @@ function Navbar() {
               className="logout-btn"
               onClick={logoutHandler}
             >
+
               <FaSignOutAlt />
+
               Logout
+
             </button>
 
           </div>
@@ -238,6 +452,7 @@ function Navbar() {
     </nav>
 
   );
+
 }
 
 export default Navbar;

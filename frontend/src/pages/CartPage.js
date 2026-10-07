@@ -1,150 +1,450 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// src/pages/CartPage.jsx
+
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+} from "react";
+
+import {
+  useNavigate,
+} from "react-router-dom";
 
 import "./CartPage.css";
 
 const CartPage = () => {
 
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
-  
+  // =====================================
+  // STATES
+  // =====================================
 
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] =
+    useState([]);
 
-  // ==========================
-  // LOAD CART
-  // ==========================
+  const [loading, setLoading] =
+    useState(true);
+
+  const user =
+
+    JSON.parse(
+
+      localStorage.getItem("user")
+
+    );
+
+  // =====================================
+  // LOGIN CHECK
+  // =====================================
 
   useEffect(() => {
 
-    const savedCart =
-      JSON.parse(localStorage.getItem("cartItems")) || [];
+    if (!user) {
 
-    setCart(savedCart);
+      alert(
+
+        "Please login to view your cart."
+
+      );
+
+      navigate(
+
+        "/login",
+
+        {
+
+          state: {
+
+            redirectTo: "/cart",
+
+          },
+
+        }
+
+      );
+
+      return;
+
+    }
+
+    loadCart();
 
   }, []);
 
-  // ==========================
+  // =====================================
+  // LOAD CART
+  // =====================================
+
+  const loadCart = () => {
+
+    const savedCart =
+
+      JSON.parse(
+
+        localStorage.getItem(
+
+          "cartItems"
+
+        )
+
+      ) || [];
+
+    setCart(savedCart);
+
+    setLoading(false);
+
+  };
+
+  // =====================================
   // SAVE CART
-  // ==========================
+  // =====================================
 
   useEffect(() => {
 
-    localStorage.setItem(
-      "cartItems",
-      JSON.stringify(cart)
+    if (!loading) {
+
+      localStorage.setItem(
+
+        "cartItems",
+
+        JSON.stringify(cart)
+
+      );
+
+    }
+
+  }, [
+
+    cart,
+
+    loading,
+
+  ]);
+    // =====================================
+  // INCREASE QUANTITY
+  // =====================================
+
+  const increaseQty = (id) => {
+
+    setCart((prevCart) =>
+
+      prevCart.map((item) =>
+
+        item._id === id
+
+          ? {
+
+              ...item,
+
+              qty: (item.qty || 1) + 1,
+
+            }
+
+          : item
+
+      )
+
+    );
+
+  };
+
+  // =====================================
+  // DECREASE QUANTITY
+  // =====================================
+
+  const decreaseQty = (id) => {
+
+    setCart((prevCart) =>
+
+      prevCart.map((item) =>
+
+        item._id === id
+
+          ? {
+
+              ...item,
+
+              qty: Math.max(
+
+                1,
+
+                (item.qty || 1) - 1
+
+              ),
+
+            }
+
+          : item
+
+      )
+
+    );
+
+  };
+
+  // =====================================
+  // REMOVE ITEM
+  // =====================================
+
+  const removeItem = (id) => {
+
+    const confirmRemove =
+
+      window.confirm(
+
+        "Remove this product from cart?"
+
+      );
+
+    if (!confirmRemove) return;
+
+    setCart((prevCart) =>
+
+      prevCart.filter(
+
+        (item) => item._id !== id
+
+      )
+
+    );
+
+  };
+
+  // =====================================
+  // CLEAR CART
+  // =====================================
+
+  const clearCart = () => {
+
+    const confirmClear =
+
+      window.confirm(
+
+        "Clear your entire cart?"
+
+      );
+
+    if (!confirmClear) return;
+
+    setCart([]);
+
+    localStorage.removeItem(
+
+      "cartItems"
+
+    );
+
+  };
+
+  // =====================================
+  // CONTINUE SHOPPING
+  // =====================================
+
+  const continueShopping = () => {
+
+    navigate("/home");
+
+  };
+    // =====================================
+  // PRICE CALCULATION
+  // =====================================
+
+  const subTotal = useMemo(() => {
+
+    return cart.reduce(
+
+      (total, item) =>
+
+        total +
+
+        (Number(item.price) || 0) *
+
+        (Number(item.qty) || 1),
+
+      0
+
     );
 
   }, [cart]);
 
-  // ==========================
-  // QUANTITY +
-  // ==========================
-
-  const increaseQty = (id) => {
-
-    const updatedCart = cart.map((item) =>
-      item._id === id
-        ? {
-            ...item,
-            qty: item.qty + 1,
-          }
-        : item
-    );
-
-    setCart(updatedCart);
-
-  };
-
-  // ==========================
-  // QUANTITY -
-  // ==========================
-
-  const decreaseQty = (id) => {
-
-    const updatedCart = cart.map((item) =>
-      item._id === id && item.qty > 1
-        ? {
-            ...item,
-            qty: item.qty - 1,
-          }
-        : item
-    );
-
-    setCart(updatedCart);
-
-  };
-
-  // ==========================
-  // REMOVE ITEM
-  // ==========================
-
-  const removeItem = (id) => {
-
-    const updatedCart =
-      cart.filter((item) => item._id !== id);
-
-    setCart(updatedCart);
-
-  };
-
-  // ==========================
-  // CALCULATIONS
-  // ==========================
-
-  const subTotal = cart.reduce(
-    (acc, item) => acc + item.price * item.qty,
-    0
-  );
-
   const deliveryCharge =
-    subTotal > 5000 ? 0 : 99;
+
+    subTotal >= 1000
+
+      ? 0
+
+      : 99;
 
   const discount =
-    subTotal > 20000 ? 1000 : 0;
+
+    subTotal >= 10000
+
+      ? Math.round(subTotal * 0.10)
+
+      : 0;
 
   const total =
-    subTotal + deliveryCharge - discount;
 
-  // ==========================
-  // PLACE ORDER
-  // ==========================
+    subTotal +
 
-  const handlePlaceOrder = () => {
+    deliveryCharge -
 
-  if (cart.length === 0) {
-    alert("Your cart is empty.");
-    return;
+    discount;
+
+  // =====================================
+  // CHECKOUT
+  // =====================================
+
+  const handleCheckout = () => {
+
+    if (!user) {
+
+      alert(
+
+        "Please login to continue."
+
+      );
+
+      navigate("/login", {
+
+        state: {
+
+          redirectTo: "/checkout",
+
+        },
+
+      });
+
+      return;
+
+    }
+
+    if (cart.length === 0) {
+
+      alert(
+
+        "Your cart is empty."
+
+      );
+
+      return;
+
+    }
+
+    localStorage.setItem(
+
+      "cartItems",
+
+      JSON.stringify(cart)
+
+    );
+
+    navigate("/checkout");
+
+  };
+
+  // =====================================
+  // BUY NOW
+  // =====================================
+
+  const handleBuyNow = (product) => {
+
+    if (!user) {
+
+      alert(
+
+        "Please login to continue."
+
+      );
+
+      navigate("/login", {
+
+        state: {
+
+          redirectTo: "/checkout",
+
+        },
+
+      });
+
+      return;
+
+    }
+
+    localStorage.setItem(
+
+      "buyNowProduct",
+
+      JSON.stringify({
+
+        ...product,
+
+        qty: product.qty || 1,
+
+      })
+
+    );
+
+    navigate("/checkout");
+
+  };
+
+  // =====================================
+  // EMPTY CART
+  // =====================================
+
+  if (loading) {
+
+    return (
+
+      <div className="cart-loading">
+
+        Loading Cart...
+
+      </div>
+
+    );
+
   }
-
-  navigate("/checkout");
-};
-  // ==========================
+    // =====================================
   // RETURN
-  // ==========================
+  // =====================================
 
   return (
-        <div className="cart-page">
+
+    <div className="cart-page">
 
       <h1 className="cart-title">
+
         🛒 Shopping Cart
+
       </h1>
 
       {cart.length === 0 ? (
 
         <div className="empty-cart">
 
-          <h2>Your Cart is Empty</h2>
+          <h2>
+
+            Your Cart is Empty
+
+          </h2>
 
           <p>
-            Looks like you haven't added any products yet.
+
+            Start shopping to add products to your cart.
+
           </p>
 
           <button
             className="continue-btn"
-            onClick={() => navigate("/home")}
+            onClick={continueShopping}
           >
+
             Continue Shopping
+
           </button>
 
         </div>
@@ -153,7 +453,9 @@ const CartPage = () => {
 
         <div className="cart-container">
 
-          {/* ================= LEFT ================= */}
+          {/* ==========================
+              CART ITEMS
+          ========================== */}
 
           <div className="cart-items">
 
@@ -172,10 +474,16 @@ const CartPage = () => {
 
                 <div className="cart-details">
 
-                  <h3>{item.name}</h3>
+                  <h3>
+
+                    {item.name}
+
+                  </h3>
 
                   <p>
+
                     ₹{item.price}
+
                   </p>
 
                   <div className="qty-box">
@@ -185,11 +493,15 @@ const CartPage = () => {
                         decreaseQty(item._id)
                       }
                     >
+
                       −
+
                     </button>
 
                     <span>
-                      {item.qty}
+
+                      {item.qty || 1}
+
                     </span>
 
                     <button
@@ -197,7 +509,9 @@ const CartPage = () => {
                         increaseQty(item._id)
                       }
                     >
+
                       +
+
                     </button>
 
                   </div>
@@ -209,9 +523,23 @@ const CartPage = () => {
                   <h3>
 
                     ₹
-                    {item.price * item.qty}
+
+                    {(Number(item.price) || 0) *
+
+                      (Number(item.qty) || 1)}
 
                   </h3>
+
+                  <button
+                    className="buy-now-btn"
+                    onClick={() =>
+                      handleBuyNow(item)
+                    }
+                  >
+
+                    Buy Now
+
+                  </button>
 
                   <button
                     className="remove-btn"
@@ -219,7 +547,9 @@ const CartPage = () => {
                       removeItem(item._id)
                     }
                   >
+
                     Remove
+
                   </button>
 
                 </div>
@@ -229,8 +559,9 @@ const CartPage = () => {
             ))}
 
           </div>
-
-          {/* ================= RIGHT ================= */}
+                    {/* ==========================
+              ORDER SUMMARY
+          ========================== */}
 
           <div className="summary-card">
 
@@ -260,14 +591,16 @@ const CartPage = () => {
 
               <span>
 
-                Delivery
+                Delivery Charge
 
               </span>
 
               <span>
 
                 {deliveryCharge === 0
+
                   ? "FREE"
+
                   : `₹${deliveryCharge}`}
 
               </span>
@@ -296,7 +629,7 @@ const CartPage = () => {
 
               <span>
 
-                Total
+                Grand Total
 
               </span>
 
@@ -310,10 +643,19 @@ const CartPage = () => {
 
             <button
               className="checkout-btn"
-              onClick={handlePlaceOrder}
+              onClick={handleCheckout}
             >
 
-              📦 Place Order
+              Proceed To Checkout
+
+            </button>
+
+            <button
+              className="clear-cart-btn"
+              onClick={clearCart}
+            >
+
+              Clear Cart
 
             </button>
 

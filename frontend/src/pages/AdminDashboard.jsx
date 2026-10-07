@@ -1,3 +1,5 @@
+// src/pages/AdminDashboard.jsx
+
 import React, {
   useState,
   useEffect,
@@ -5,45 +7,75 @@ import React, {
 } from "react";
 
 import axios from "axios";
-import "./AdminDashboard.css";
 
 import API_URL from "../config";
 
+import "./AdminDashboard.css";
+
 const AdminDashboard = () => {
 
-  // ======================================
+  // =====================================
+  // ADMIN AUTHENTICATION
+  // =====================================
+
+  const admin = JSON.parse(
+
+    localStorage.getItem("user")
+
+  );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+useEffect(() => {
+
+  if (!admin || admin.role !== "admin") {
+
+    alert("Access Denied");
+
+    window.location.href = "/login";
+
+  }
+
+}, [admin]);
+  // =====================================
   // DASHBOARD STATS
-  // ======================================
+  // =====================================
 
-  const [stats, setStats] = useState({
+  const [stats, setStats] =
 
-    totalUsers: 0,
+    useState({
 
-    totalProducts: 0,
+      totalUsers: 0,
 
-    totalOrders: 0,
+      totalProducts: 0,
 
-    totalRevenue: 0,
+      totalOrders: 0,
 
-  });
+      totalRevenue: 0,
 
-  // ======================================
+    });
+
+  // =====================================
   // USERS
-  // ======================================
+  // =====================================
 
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] =
 
-  // ======================================
+    useState([]);
+
+  // =====================================
   // PRODUCTS
-  // ======================================
+  // =====================================
 
   const [products, setProducts] =
+
     useState([]);
 
   const [editingProduct, setEditingProduct] =
+
     useState(null);
 
   const [newProduct, setNewProduct] =
+
     useState({
 
       name: "",
@@ -56,66 +88,102 @@ const AdminDashboard = () => {
 
       description: "",
 
-      sellerEmail: "admin@amashop.com",
+      sellerEmail:
+
+        "admin@amashop.com",
 
     });
 
-  // ======================================
+  // =====================================
   // ORDERS
-  // ======================================
+  // =====================================
 
   const [orders, setOrders] =
+
     useState([]);
 
-  // ======================================
+  // =====================================
   // WEBSITE SETTINGS
-  // ======================================
+  // =====================================
 
   const [settings, setSettings] =
+
     useState({
 
       websiteName: "AMASHOP",
 
       heroTitle:
+
         "Premium Electronics Store",
 
       heroSubtitle:
+
         "Discover Premium Electronics at Best Prices",
 
       contact: "",
 
       email: "",
 
-      adminUsername: "",
+      adminUsername:
+
+        "Administrator",
 
       adminPassword: "",
 
     });
 
-  // ======================================
+  // =====================================
   // PAYMENT SETTINGS
-  // ======================================
+  // =====================================
 
-  const [paymentSettings, setPaymentSettings] =
-    useState({
+  const [
 
-      codEnabled: true,
+    paymentSettings,
 
-      upiEnabled: true,
+    setPaymentSettings,
 
-      upiId: "",
+  ] = useState({
 
-      upiName: "",
+    codEnabled: true,
 
-    });
+    upiEnabled: true,
 
-  // ======================================
-  // AUTO QR
-  // ======================================
+    upiId: "",
+
+    upiName: "",
+
+    qrCode: "",
+
+  });
+
+  // =====================================
+  // SEARCH
+  // =====================================
+
+  const [search, setSearch] =
+
+    useState("");
+
+  // =====================================
+  // LOADING
+  // =====================================
+
+  const [loading, setLoading] =
+
+    useState(true);
+
+  // =====================================
+  // QR CODE
+  // =====================================
 
   const qrCode = useMemo(() => {
 
-    if (!paymentSettings.upiId)
+    if (
+
+      !paymentSettings.upiId
+
+    )
+
       return "";
 
     const upiLink =
@@ -141,18 +209,213 @@ const AdminDashboard = () => {
     paymentSettings.upiName,
 
   ]);
+    // =====================================
+  // FETCH USERS
+  // =====================================
 
-  // ======================================
- 
-  
- // LOAD DATA
-  // ======================================
+  const fetchUsers = async () => {
 
+    try {
 
-  // ======================================
-  // ======================================
-  // CALCULATE STATS
-  // ======================================
+      const { data } = await axios.get(
+
+        `${API_URL}/users`
+
+      );
+
+      setUsers(
+
+        Array.isArray(data)
+
+          ? data
+
+          : []
+
+      );
+
+    } catch (error) {
+
+      console.error(
+
+        "Unable to load users",
+
+        error
+
+      );
+
+      setUsers([]);
+
+    }
+
+  };
+
+  // =====================================
+  // FETCH PRODUCTS
+  // =====================================
+
+  const fetchProducts = async () => {
+
+    try {
+
+      const { data } = await axios.get(
+
+        `${API_URL}/products`
+
+      );
+
+      setProducts(
+
+        Array.isArray(data)
+
+          ? data
+
+          : []
+
+      );
+
+    } catch (error) {
+
+      console.error(
+
+        "Unable to load products",
+
+        error
+
+      );
+
+      setProducts([]);
+
+    }
+
+  };
+
+  // =====================================
+  // FETCH ORDERS
+  // =====================================
+
+  const fetchOrders = async () => {
+
+    try {
+
+      const { data } = await axios.get(
+
+        `${API_URL}/orders`
+
+      );
+
+      setOrders(
+
+        Array.isArray(data)
+
+          ? data
+
+          : []
+
+      );
+
+    } catch (error) {
+
+      console.error(
+
+        "Unable to load orders",
+
+        error
+
+      );
+
+      setOrders([]);
+
+    }
+
+  };
+
+  // =====================================
+  // LOAD WEBSITE SETTINGS
+  // =====================================
+
+  const loadWebsiteSettings = () => {
+
+    const saved = JSON.parse(
+
+      localStorage.getItem(
+
+        "websiteSettings"
+
+      )
+
+    );
+
+    if (saved) {
+
+      setSettings(saved);
+
+    }
+
+  };
+
+  // =====================================
+  // LOAD PAYMENT SETTINGS
+  // =====================================
+
+  const loadPaymentSettings = () => {
+
+    const saved = JSON.parse(
+
+      localStorage.getItem(
+
+        "paymentSettings"
+
+      )
+
+    );
+
+    if (saved) {
+
+      setPaymentSettings(saved);
+
+    }
+
+  };
+
+  // =====================================
+  // LOAD DASHBOARD
+  // =====================================
+
+  const loadDashboard = async () => {
+
+    setLoading(true);
+
+    await Promise.all([
+
+      fetchUsers(),
+
+      fetchProducts(),
+
+      fetchOrders(),
+
+    ]);
+
+    loadWebsiteSettings();
+
+    loadPaymentSettings();
+
+    setLoading(false);
+
+  };
+    // =====================================
+  // INITIAL LOAD
+  // =====================================
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+
+    loadDashboard();
+
+  }, []);
+
+  // =====================================
+  // DASHBOARD STATISTICS
+  // =====================================
 
   useEffect(() => {
 
@@ -163,6 +426,8 @@ const AdminDashboard = () => {
         sum +
 
         Number(
+
+          order.total ||
 
           order.totalAmount ||
 
@@ -197,156 +462,38 @@ const AdminDashboard = () => {
     orders,
 
   ]);
-    // ======================================
-  // FETCH USERS
-  // ======================================
 
-  const fetchUsers = async () => {
+  // =====================================
+  // SEARCH PRODUCTS
+  // =====================================
 
-    try {
+  const filteredProducts = useMemo(() => {
 
-      const { data } = await axios.get(
-        `${API_URL}/users`
-      );
+    return products.filter((product) =>
 
-      setUsers(data || []);
+      product.name
 
-    } catch (error) {
+        ?.toLowerCase()
 
-      console.error(
-        "Users Load Error",
-        error
-      );
+        .includes(
 
-    }
+          search.toLowerCase()
 
-  };
+        )
 
-  // ======================================
-  // FETCH PRODUCTS
-  // ======================================
+    );
 
-  const fetchProducts = async () => {
+  }, [
 
-    try {
+    products,
 
-      const { data } = await axios.get(
-        `${API_URL}/products`
-      );
-
-      setProducts(data || []);
-
-    } catch (error) {
-
-      console.error(
-        "Products Load Error",
-        error
-      );
-
-    }
-
-  };
-
-  // ======================================
-// LOAD DASHBOARD
-// ======================================
-
-const loadDashboard = async () => {
-
-  await Promise.all([
-
-    fetchUsers(),
-
-    fetchProducts(),
-
-    fetchOrders(),
+    search,
 
   ]);
 
-  loadWebsiteSettings();
-
-  loadPaymentSettings();
-
-};
-
-// ======================================
-// LOAD DATA
-// ======================================
-useEffect(() => {
-  loadDashboard();
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
-  // ======================================
-  // FETCH ORDERS
-  // ======================================
-
-  const fetchOrders = async () => {
-
-    try {
-
-      const { data } = await axios.get(
-        `${API_URL}/orders`
-      );
-
-      setOrders(data || []);
-
-    } catch (error) {
-
-      console.error(
-        "Orders Load Error",
-        error
-      );
-
-    }
-
-  };
-
-  // ======================================
-  // LOAD WEBSITE SETTINGS
-  // ======================================
-
-  const loadWebsiteSettings = () => {
-
-    const saved =
-      JSON.parse(
-        localStorage.getItem(
-          "websiteSettings"
-        )
-      );
-
-    if (saved) {
-
-      setSettings(saved);
-
-    }
-
-  };
-
-  // ======================================
-  // LOAD PAYMENT SETTINGS
-  // ======================================
-
-  const loadPaymentSettings = () => {
-
-    const saved =
-      JSON.parse(
-        localStorage.getItem(
-          "paymentSettings"
-        )
-      );
-
-    if (saved) {
-
-      setPaymentSettings(saved);
-
-    }
-
-  };
-
-  // ======================================
+  // =====================================
   // SAVE WEBSITE SETTINGS
-  // ======================================
+  // =====================================
 
   const saveWebsiteSettings = () => {
 
@@ -359,14 +506,16 @@ useEffect(() => {
     );
 
     alert(
-      "Website Settings Saved Successfully ✅"
+
+      "✅ Website Settings Saved"
+
     );
 
   };
 
-  // ======================================
+  // =====================================
   // SAVE PAYMENT SETTINGS
-  // ======================================
+  // =====================================
 
   const savePaymentSettings = () => {
 
@@ -385,64 +534,16 @@ useEffect(() => {
     );
 
     alert(
-      "Payment Settings Saved Successfully ✅"
+
+      "✅ Payment Settings Saved"
+
     );
 
   };
 
-  // ======================================
-  // INPUT CHANGE
-  // ======================================
-
-  const handleSettingChange = (e) => {
-
-    setSettings({
-
-      ...settings,
-
-      [e.target.name]:
-        e.target.value,
-
-    });
-
-  };
-
-  // ======================================
-  // PAYMENT CHANGE
-  // ======================================
-
-  const handlePaymentChange = (e) => {
-
-    const {
-
-      name,
-
-      value,
-
-      type,
-
-      checked,
-
-    } = e.target;
-
-    setPaymentSettings({
-
-      ...paymentSettings,
-
-      [name]:
-
-        type === "checkbox"
-
-          ? checked
-
-          : value,
-
-    });
-
-  };
-    // ======================================
+  // =====================================
   // PRODUCT INPUT CHANGE
-  // ======================================
+  // =====================================
 
   const handleProductChange = (e) => {
 
@@ -450,221 +551,19 @@ useEffect(() => {
 
       ...newProduct,
 
-      [e.target.name]: e.target.value,
+      [e.target.name]:
+
+        e.target.value,
 
     });
 
   };
 
-  // ======================================
-  // ADD PRODUCT
-  // ======================================
-
-  const addProduct = async () => {
-
-    if (
-
-      !newProduct.name ||
-
-      !newProduct.price ||
-
-      !newProduct.category ||
-
-      !newProduct.image
-
-    ) {
-
-      alert("Please fill all required fields.");
-
-      return;
-
-    }
-
-    try {
-
-      const { data } = await axios.post(
-
-        `${API_URL}/products`,
-
-        newProduct
-
-      );
-
-      setProducts((prev) => [
-
-        ...prev,
-
-        data,
-
-      ]);
-
-      setNewProduct({
-
-        name: "",
-
-        price: "",
-
-        category: "",
-
-        image: "",
-
-        description: "",
-
-        sellerEmail: "admin@amashop.com",
-
-      });
-
-      alert("Product Added Successfully ✅");
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert("Unable to add product.");
-
-    }
-
-  };
-
-  // ======================================
-  // EDIT PRODUCT
-  // ======================================
-
-  const startEditProduct = (product) => {
-
-    setEditingProduct(product._id);
-
-    setNewProduct({
-
-      name: product.name,
-
-      price: product.price,
-
-      category: product.category,
-
-      image: product.image,
-
-      description: product.description,
-
-      sellerEmail:
-
-        product.sellerEmail ||
-
-        "admin@amashop.com",
-
-    });
-
-  };
-
-  // ======================================
-  // UPDATE PRODUCT
-  // ======================================
-
-  const updateProduct = async () => {
-
-    try {
-
-      const { data } = await axios.put(
-
-        `${API_URL}/products/${editingProduct}`,
-
-        newProduct
-
-      );
-
-      setProducts((prev) =>
-
-        prev.map((item) =>
-
-          item._id === editingProduct
-
-            ? data
-
-            : item
-
-        )
-
-      );
-
-      setEditingProduct(null);
-
-      setNewProduct({
-
-        name: "",
-
-        price: "",
-
-        category: "",
-
-        image: "",
-
-        description: "",
-
-        sellerEmail: "admin@amashop.com",
-
-      });
-
-      alert("Product Updated Successfully ✅");
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert("Unable to update product.");
-
-    }
-
-  };
-
-  // ======================================
-  // DELETE PRODUCT
-  // ======================================
-
-  const deleteProduct = async (id) => {
-
-    const confirmDelete = window.confirm(
-
-      "Delete this product?"
-
-    );
-
-    if (!confirmDelete) return;
-
-    try {
-
-      await axios.delete(
-
-        `${API_URL}/products/${id}`
-
-      );
-
-      setProducts((prev) =>
-
-        prev.filter(
-
-          (item) => item._id !== id
-
-        )
-
-      );
-
-      alert("Product Deleted Successfully 🗑");
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert("Unable to delete product.");
-
-    }
-
-  };
-
-  // ======================================
-  // CANCEL EDIT
-  // ======================================
-
-  const cancelEdit = () => {
+  // =====================================
+  // RESET PRODUCT FORM
+  // =====================================
+
+  const resetProductForm = () => {
 
     setEditingProduct(null);
 
@@ -680,1082 +579,277 @@ useEffect(() => {
 
       description: "",
 
-      sellerEmail: "admin@amashop.com",
+      sellerEmail:
+
+        "admin@amashop.com",
 
     });
 
   };
-    // ======================================
-  // SEARCH
-  // ======================================
+    // =====================================
+  // ADD / UPDATE PRODUCT
+  // =====================================
 
-  const [search, setSearch] = useState("");
+  const saveProduct = async () => {
 
-  const filteredProducts = useMemo(() => {
+    if (
 
-    return products.filter((product) =>
+      !newProduct.name ||
 
-      product.name
-        ?.toLowerCase()
-        .includes(search.toLowerCase())
+      !newProduct.price ||
+
+      !newProduct.category
+
+    ) {
+
+      alert(
+
+        "Please fill all required fields."
+
+      );
+
+      return;
+
+    }
+
+    try {
+
+      if (editingProduct) {
+
+        await axios.put(
+
+          `${API_URL}/products/${editingProduct._id}`,
+
+          newProduct
+
+        );
+
+        alert(
+
+          "✅ Product Updated Successfully"
+
+        );
+
+      } else {
+
+        await axios.post(
+
+          `${API_URL}/products`,
+
+          newProduct
+
+        );
+
+        alert(
+
+          "✅ Product Added Successfully"
+
+        );
+
+      }
+
+      resetProductForm();
+
+      fetchProducts();
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+
+        "❌ Unable to save product."
+
+      );
+
+    }
+
+  };
+
+  // =====================================
+  // EDIT PRODUCT
+  // =====================================
+
+  const editProduct = (product) => {
+
+    setEditingProduct(product);
+
+    setNewProduct({
+
+      name: product.name || "",
+
+      price: product.price || "",
+
+      category: product.category || "",
+
+      image: product.image || "",
+
+      description:
+
+        product.description || "",
+
+      sellerEmail:
+
+        product.sellerEmail ||
+
+        "admin@amashop.com",
+
+    });
+
+    window.scrollTo({
+
+      top: 0,
+
+      behavior: "smooth",
+
+    });
+
+  };
+
+  // =====================================
+  // DELETE PRODUCT
+  // =====================================
+
+  const deleteProduct = async (id) => {
+
+    const confirmDelete =
+
+      window.confirm(
+
+        "Delete this product?"
+
+      );
+
+    if (!confirmDelete) return;
+
+    try {
+
+      await axios.delete(
+
+        `${API_URL}/products/${id}`
+
+      );
+
+      alert(
+
+        "🗑 Product Deleted"
+
+      );
+
+      fetchProducts();
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+
+        "❌ Unable to delete product."
+
+      );
+
+    }
+
+  };
+
+  // =====================================
+  // REFRESH DASHBOARD
+  // =====================================
+
+  const refreshDashboard = async () => {
+
+    await loadDashboard();
+
+    alert(
+
+      "✅ Dashboard Refreshed"
 
     );
 
-  }, [products, search]);
+  };
 
-  // ======================================
-  // DASHBOARD CARDS
-  // ======================================
+  // =====================================
+  // LOGOUT
+  // =====================================
 
-  const DashboardCards = () => (
+  const logout = () => {
 
-    <div className="dashboard-cards">
+    localStorage.removeItem("user");
 
-      <div className="dashboard-card users-card">
+    window.location.href = "/";
 
-        <h3>👥 Users</h3>
+  };
+    // =====================================
+  // RETURN
+  // =====================================
 
-        <h1>{stats.totalUsers}</h1>
+  if (loading) {
 
-        <p>Registered Users</p>
+    return (
 
-      </div>
+      <div className="admin-loading">
 
-      <div className="dashboard-card products-card">
+        <h2>
 
-        <h3>📦 Products</h3>
+          Loading Dashboard...
 
-        <h1>{stats.totalProducts}</h1>
-
-        <p>Total Products</p>
-
-      </div>
-
-      <div className="dashboard-card orders-card">
-
-        <h3>🛒 Orders</h3>
-
-        <h1>{stats.totalOrders}</h1>
-
-        <p>Orders Received</p>
+        </h2>
 
       </div>
 
-      <div className="dashboard-card revenue-card">
+    );
 
-        <h3>💰 Revenue</h3>
-
-        <h1>
-
-          ₹
-
-          {stats.totalRevenue.toLocaleString(
-            "en-IN"
-          )}
-
-        </h1>
-
-        <p>Total Revenue</p>
-
-      </div>
-
-    </div>
-
-  );
-
-  // ======================================
-  // HEADER
-  // ======================================
-
-  const DashboardHeader = () => (
-
-    <div className="dashboard-header">
-
-      <div>
-
-        <h1>
-
-          Admin Dashboard
-
-        </h1>
-
-        <p>
-
-          Welcome back, Admin 👋
-
-        </p>
-
-      </div>
-
-      <input
-
-        type="text"
-
-        placeholder="Search Products..."
-
-        value={search}
-
-        onChange={(e) =>
-
-          setSearch(e.target.value)
-
-        }
-
-        className="dashboard-search"
-
-      />
-
-    </div>
-
-  );
-
-  // ======================================
-  // PAGE START
-  // ======================================
+  }
 
   return (
 
     <div className="admin-dashboard">
 
-      <DashboardHeader />
+      {/* =====================================
+          HEADER
+      ===================================== */}
 
-      <DashboardCards />
+      <header className="admin-header">
 
-      {/* Remaining Sections */}
-            {/* ======================================
-          WEBSITE SETTINGS
-      ====================================== */}
+        <div>
 
-      <section className="admin-section">
+          <h1>
 
-        <h2>🌐 Website Settings</h2>
+            👑 Admin Dashboard
 
-        <div className="form-grid">
-
-          <input
-            type="text"
-            name="websiteName"
-            placeholder="Website Name"
-            value={settings.websiteName}
-            onChange={handleSettingChange}
-          />
-
-          <input
-            type="text"
-            name="heroTitle"
-            placeholder="Hero Title"
-            value={settings.heroTitle}
-            onChange={handleSettingChange}
-          />
-
-          <input
-            type="text"
-            name="heroSubtitle"
-            placeholder="Hero Subtitle"
-            value={settings.heroSubtitle}
-            onChange={handleSettingChange}
-          />
-
-          <input
-            type="text"
-            name="contact"
-            placeholder="Contact Number"
-            value={settings.contact}
-            onChange={handleSettingChange}
-          />
-
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            value={settings.email}
-            onChange={handleSettingChange}
-          />
-
-        </div>
-
-        <button
-          className="save-btn"
-          onClick={saveWebsiteSettings}
-        >
-
-          💾 Save Website Settings
-
-        </button>
-
-      </section>
-
-      {/* ======================================
-          PAYMENT SETTINGS
-      ====================================== */}
-
-      <section className="admin-section">
-
-        <h2>💳 Payment Settings</h2>
-
-        <div className="form-grid">
-
-          <label className="checkbox">
-
-            <input
-              type="checkbox"
-              name="codEnabled"
-              checked={paymentSettings.codEnabled}
-              onChange={handlePaymentChange}
-            />
-
-            Cash On Delivery
-
-          </label>
-
-          <label className="checkbox">
-
-            <input
-              type="checkbox"
-              name="upiEnabled"
-              checked={paymentSettings.upiEnabled}
-              onChange={handlePaymentChange}
-            />
-
-            UPI Payment
-
-          </label>
-
-          <input
-            type="text"
-            name="upiId"
-            placeholder="UPI ID"
-            value={paymentSettings.upiId}
-            onChange={handlePaymentChange}
-          />
-
-          <input
-            type="text"
-            name="upiName"
-            placeholder="UPI Name"
-            value={paymentSettings.upiName}
-            onChange={handlePaymentChange}
-          />
-
-        </div>
-
-        {qrCode && (
-
-          <div className="qr-preview">
-
-            <h3>QR Preview</h3>
-
-            <img
-              src={qrCode}
-              alt="UPI QR"
-            />
-
-          </div>
-
-        )}
-
-        <button
-          className="save-btn"
-          onClick={savePaymentSettings}
-        >
-
-          💾 Save Payment Settings
-
-        </button>
-
-      </section>
-
-      {/* ======================================
-          PRODUCT MANAGEMENT
-      ====================================== */}
-            <section className="admin-section">
-
-        <h2>
-
-          📦 Product Management
-
-        </h2>
-
-        {/* ==========================
-            ADD / EDIT PRODUCT
-        ========================== */}
-
-        <div className="product-form">
-
-          <input
-            type="text"
-            name="name"
-            placeholder="Product Name"
-            value={newProduct.name}
-            onChange={handleProductChange}
-          />
-
-          <input
-            type="number"
-            name="price"
-            placeholder="Price"
-            value={newProduct.price}
-            onChange={handleProductChange}
-          />
-
-          <input
-            type="text"
-            name="category"
-            placeholder="Category"
-            value={newProduct.category}
-            onChange={handleProductChange}
-          />
-
-          <input
-            type="text"
-            name="image"
-            placeholder="Image URL"
-            value={newProduct.image}
-            onChange={handleProductChange}
-          />
-
-          <textarea
-            name="description"
-            placeholder="Product Description"
-            value={newProduct.description}
-            onChange={handleProductChange}
-          />
-
-          <div className="product-buttons">
-
-            {editingProduct ? (
-
-              <>
-
-                <button
-                  className="update-btn"
-                  onClick={updateProduct}
-                >
-
-                  ✏ Update Product
-
-                </button>
-
-                <button
-                  className="cancel-btn"
-                  onClick={cancelEdit}
-                >
-
-                  ❌ Cancel
-
-                </button>
-
-              </>
-
-            ) : (
-
-              <button
-                className="add-btn"
-                onClick={addProduct}
-              >
-
-                ➕ Add Product
-
-              </button>
-
-            )}
-
-          </div>
-
-        </div>
-
-        {/* ==========================
-            PRODUCT LIST
-        ========================== */}
-
-        <div className="products-table">
-
-          <table>
-
-            <thead>
-
-              <tr>
-
-                <th>Image</th>
-
-                <th>Name</th>
-
-                <th>Category</th>
-
-                <th>Price</th>
-
-                <th>Seller</th>
-
-                <th>Actions</th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {filteredProducts.length === 0 ? (
-
-                <tr>
-
-                  <td
-                    colSpan="6"
-                    style={{
-                      textAlign: "center",
-                      padding: "30px",
-                    }}
-                  >
-
-                    No Products Found
-
-                  </td>
-
-                </tr>
-
-              ) : (
-
-                filteredProducts.map((product) => (
-
-                  <tr key={product._id}>
-
-                    <td>
-
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="table-image"
-                      />
-
-                    </td>
-
-                    <td>
-
-                      {product.name}
-
-                    </td>
-
-                    <td>
-
-                      {product.category}
-
-                    </td>
-
-                    <td>
-
-                      ₹{product.price}
-
-                    </td>
-
-                    <td>
-
-                      {product.sellerEmail}
-
-                    </td>
-
-                    <td>
-
-                      <button
-                        className="edit-btn"
-                        onClick={() =>
-                          startEditProduct(product)
-                        }
-                      >
-
-                        Edit
-
-                      </button>
-
-                      <button
-                        className="delete-btn"
-                        onClick={() =>
-                          deleteProduct(product._id)
-                        }
-                      >
-
-                        Delete
-
-                      </button>
-
-                    </td>
-
-                  </tr>
-
-                ))
-
-              )}
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </section>
-
-      {/* ======================================
-          USERS SECTION
-      ====================================== */}
-            <section className="admin-section">
-
-        <h2>👥 Users Management</h2>
-
-        <div className="users-table">
-
-          <table>
-
-            <thead>
-
-              <tr>
-
-                <th>Name</th>
-
-                <th>Email</th>
-
-                <th>Role</th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {users.length === 0 ? (
-
-                <tr>
-
-                  <td
-                    colSpan="3"
-                    style={{
-                      textAlign: "center",
-                      padding: "25px",
-                    }}
-                  >
-
-                    No Users Available
-
-                  </td>
-
-                </tr>
-
-              ) : (
-
-                users.map((user) => (
-
-                  <tr key={user._id || user.email}>
-
-                    <td>{user.name}</td>
-
-                    <td>{user.email}</td>
-
-                    <td>
-
-                      <span
-                        className={`role-badge ${user.role}`}
-                      >
-
-                        {user.role}
-
-                      </span>
-
-                    </td>
-
-                  </tr>
-
-                ))
-
-              )}
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </section>
-
-      {/* ======================================
-          ORDERS MANAGEMENT
-      ====================================== */}
-
-      <section className="admin-section">
-
-        <h2>🛒 Orders Management</h2>
-
-        <div className="orders-table">
-
-          <table>
-
-            <thead>
-
-              <tr>
-
-                <th>Customer</th>
-
-                <th>Products</th>
-
-                <th>Amount</th>
-
-                <th>Status</th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {orders.length === 0 ? (
-
-                <tr>
-
-                  <td
-                    colSpan="4"
-                    style={{
-                      textAlign: "center",
-                      padding: "25px",
-                    }}
-                  >
-
-                    No Orders Found
-
-                  </td>
-
-                </tr>
-
-              ) : (
-
-                orders.map((order) => (
-
-                  <tr key={order._id}>
-
-                    <td>
-
-                      {order.customerName ||
-                        order.name ||
-                        "Customer"}
-
-                    </td>
-
-                    <td>
-
-                      {(order.products || [])
-
-                        .map((item) => item.name)
-
-                        .join(", ")}
-
-                    </td>
-
-                    <td>
-
-                      ₹
-
-                      {order.totalAmount ||
-                        order.totalPrice ||
-                        0}
-
-                    </td>
-
-                    <td>
-
-                      <span className="status-badge">
-
-                        {order.status ||
-                          "Pending"}
-
-                      </span>
-
-                    </td>
-
-                  </tr>
-
-                ))
-
-              )}
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </section>
-
-      {/* ======================================
-          END OF DASHBOARD BODY
-      ====================================== */}
-            {/* ======================================
-          ANALYTICS
-      ====================================== */}
-
-      <section className="admin-section">
-
-        <h2>📊 Dashboard Analytics</h2>
-
-        <div className="analytics-grid">
-
-          <div className="analytics-card">
-
-            <h3>Today's Orders</h3>
-
-            <h1>{orders.length}</h1>
-
-            <p>Orders received today</p>
-
-          </div>
-
-          <div className="analytics-card">
-
-            <h3>Products Available</h3>
-
-            <h1>{products.length}</h1>
-
-            <p>Products in store</p>
-
-          </div>
-
-          <div className="analytics-card">
-
-            <h3>Registered Users</h3>
-
-            <h1>{users.length}</h1>
-
-            <p>Total customers</p>
-
-          </div>
-
-          <div className="analytics-card">
-
-            <h3>Total Revenue</h3>
-
-            <h1>
-
-              ₹
-
-              {stats.totalRevenue.toLocaleString(
-                "en-IN"
-              )}
-
-            </h1>
-
-            <p>Overall earnings</p>
-
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* ======================================
-          RECENT ACTIVITY
-      ====================================== */}
-
-      <section className="admin-section">
-
-        <h2>📝 Recent Activity</h2>
-
-        <div className="activity-list">
-
-          {orders.length === 0 ? (
-
-            <p>No recent activity.</p>
-
-          ) : (
-
-            orders
-
-              .slice(0, 5)
-
-              .map((order) => (
-
-                <div
-                  key={order._id}
-                  className="activity-card"
-                >
-
-                  <h4>
-
-                    📦 New Order
-
-                  </h4>
-
-                  <p>
-
-                    Customer :
-
-                    {" "}
-
-                    {order.customerName ||
-
-                      order.name ||
-
-                      "Customer"}
-
-                  </p>
-
-                  <p>
-
-                    Amount :
-
-                    ₹
-
-                    {order.totalAmount ||
-
-                      order.totalPrice ||
-
-                      0}
-
-                  </p>
-
-                  <span>
-
-                    {order.status ||
-
-                      "Pending"}
-
-                  </span>
-
-                </div>
-
-              ))
-
-          )}
-
-        </div>
-
-      </section>
-
-      {/* ======================================
-          QUICK ACTIONS
-      ====================================== */}
-
-      <section className="admin-section">
-
-        <h2>⚡ Quick Actions</h2>
-
-        <div className="quick-actions">
-
-          <button
-            className="action-btn"
-            onClick={() =>
-              window.scrollTo({
-                top: 0,
-                behavior: "smooth",
-              })
-            }
-          >
-
-            ⬆ Back to Top
-
-          </button>
-
-          <button
-            className="action-btn"
-            onClick={fetchProducts}
-          >
-
-            🔄 Refresh Products
-
-          </button>
-
-          <button
-            className="action-btn"
-            onClick={fetchOrders}
-          >
-
-            🛒 Refresh Orders
-
-          </button>
-
-          <button
-            className="action-btn"
-            onClick={fetchUsers}
-          >
-
-            👥 Refresh Users
-
-          </button>
-
-        </div>
-
-      </section>
-
-      {/* ======================================
-          MOBILE NOTE
-      ====================================== */}
-
-      <section className="admin-section">
-
-        <div className="admin-info">
-
-          <h3>
-
-            📱 Responsive Dashboard
-
-          </h3>
+          </h1>
 
           <p>
 
-            This dashboard is optimized for Desktop,
+            Welcome,
 
-            Tablet and Mobile devices.
+            {" "}
+
+            {admin?.name || "Administrator"}
 
           </p>
 
         </div>
 
-      </section>
-            {/* ======================================
-          SIDEBAR SHORTCUTS
-      ====================================== */}
-
-      <section className="admin-section">
-
-        <h2>🚀 Quick Navigation</h2>
-
-        <div className="shortcut-grid">
+        <div className="header-buttons">
 
           <button
-            className="shortcut-btn"
-            onClick={() =>
-              window.scrollTo({
-                top: 0,
-                behavior: "smooth",
-              })
-            }
+
+            className="refresh-btn"
+
+            onClick={refreshDashboard}
+
           >
-            🏠 Dashboard
+
+            🔄 Refresh
+
           </button>
-
-          <button
-            className="shortcut-btn"
-            onClick={() =>
-              document
-                .querySelector(".product-form")
-                ?.scrollIntoView({
-                  behavior: "smooth",
-                })
-            }
-          >
-            📦 Products
-          </button>
-
-          <button
-            className="shortcut-btn"
-            onClick={() =>
-              document
-                .querySelector(".users-table")
-                ?.scrollIntoView({
-                  behavior: "smooth",
-                })
-            }
-          >
-            👥 Users
-          </button>
-
-          <button
-            className="shortcut-btn"
-            onClick={() =>
-              document
-                .querySelector(".orders-table")
-                ?.scrollIntoView({
-                  behavior: "smooth",
-                })
-            }
-          >
-            🛒 Orders
-          </button>
-
-        </div>
-
-      </section>
-
-      {/* ======================================
-          SYSTEM INFORMATION
-      ====================================== */}
-
-      <section className="admin-section">
-
-        <h2>💻 System Information</h2>
-
-        <div className="system-info">
-
-          <div className="info-box">
-
-            <h4>Website</h4>
-
-            <p>{settings.websiteName}</p>
-
-          </div>
-
-          <div className="info-box">
-
-            <h4>Version</h4>
-
-            <p>v2.0</p>
-
-          </div>
-
-          <div className="info-box">
-
-            <h4>Environment</h4>
-
-            <p>Production</p>
-
-          </div>
-
-          <div className="info-box">
-
-            <h4>Status</h4>
-
-            <p className="online">
-
-              🟢 Online
-
-            </p>
-
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* ======================================
-          ADMIN PROFILE
-      ====================================== */}
-
-      <section className="admin-section">
-
-        <h2>👤 Admin Profile</h2>
-
-        <div className="admin-profile">
-
-          <div>
-
-            <h3>
-
-              {settings.adminUsername || "Administrator"}
-
-            </h3>
-
-            <p>
-
-              {settings.email || "admin@amashop.com"}
-
-            </p>
-
-          </div>
 
           <button
 
             className="logout-btn"
 
-            onClick={() => {
-
-              localStorage.removeItem("user");
-
-              window.location.href = "/home";
-
-            }}
+            onClick={logout}
 
           >
 
@@ -1765,78 +859,1078 @@ useEffect(() => {
 
         </div>
 
+      </header>
+
+      {/* =====================================
+          DASHBOARD STATS
+      ===================================== */}
+
+      <section className="stats-grid">
+
+        <div className="stat-card users">
+
+          <h2>
+
+            👥 Users
+
+          </h2>
+
+          <h1>
+
+            {stats.totalUsers}
+
+          </h1>
+
+        </div>
+
+        <div className="stat-card products">
+
+          <h2>
+
+            📦 Products
+
+          </h2>
+
+          <h1>
+
+            {stats.totalProducts}
+
+          </h1>
+
+        </div>
+
+        <div className="stat-card orders">
+
+          <h2>
+
+            🛒 Orders
+
+          </h2>
+
+          <h1>
+
+            {stats.totalOrders}
+
+          </h1>
+
+        </div>
+
+        <div className="stat-card revenue">
+
+          <h2>
+
+            💰 Revenue
+
+          </h2>
+
+          <h1>
+
+            ₹{stats.totalRevenue}
+
+          </h1>
+
+        </div>
+
       </section>
 
-      {/* ======================================
+      {/* =====================================
+          MAIN GRID
+      ===================================== */}
+
+      <div className="dashboard-grid">
+                {/* =====================================
+            WEBSITE SETTINGS
+        ===================================== */}
+
+        <section className="dashboard-card">
+
+          <h2>
+
+            🌐 Website Settings
+
+          </h2>
+
+          <div className="form-grid">
+
+            <input
+              type="text"
+              placeholder="Website Name"
+              value={settings.websiteName}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  websiteName: e.target.value,
+                })
+              }
+            />
+
+            <input
+              type="text"
+              placeholder="Hero Title"
+              value={settings.heroTitle}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  heroTitle: e.target.value,
+                })
+              }
+            />
+
+            <input
+              type="text"
+              placeholder="Hero Subtitle"
+              value={settings.heroSubtitle}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  heroSubtitle: e.target.value,
+                })
+              }
+            />
+
+            <input
+              type="text"
+              placeholder="Contact Number"
+              value={settings.contact}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  contact: e.target.value,
+                })
+              }
+            />
+
+            <input
+              type="email"
+              placeholder="Email Address"
+              value={settings.email}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  email: e.target.value,
+                })
+              }
+            />
+
+          </div>
+
+          <button
+            className="save-btn"
+            onClick={saveWebsiteSettings}
+          >
+
+            💾 Save Website Settings
+
+          </button>
+
+        </section>
+
+        {/* =====================================
+            PAYMENT SETTINGS
+        ===================================== */}
+
+        <section className="dashboard-card">
+
+          <h2>
+
+            💳 Payment Settings
+
+          </h2>
+
+          <div className="form-grid">
+
+            <input
+              type="text"
+              placeholder="UPI ID"
+              value={paymentSettings.upiId}
+              onChange={(e) =>
+                setPaymentSettings({
+                  ...paymentSettings,
+                  upiId: e.target.value,
+                })
+              }
+            />
+
+            <input
+              type="text"
+              placeholder="UPI Name"
+              value={paymentSettings.upiName}
+              onChange={(e) =>
+                setPaymentSettings({
+                  ...paymentSettings,
+                  upiName: e.target.value,
+                })
+              }
+            />
+
+          </div>
+
+          <div className="payment-options">
+
+            <label>
+
+              <input
+                type="checkbox"
+                checked={paymentSettings.codEnabled}
+                onChange={(e) =>
+                  setPaymentSettings({
+                    ...paymentSettings,
+                    codEnabled: e.target.checked,
+                  })
+                }
+              />
+
+              Cash On Delivery
+
+            </label>
+
+            <label>
+
+              <input
+                type="checkbox"
+                checked={paymentSettings.upiEnabled}
+                onChange={(e) =>
+                  setPaymentSettings({
+                    ...paymentSettings,
+                    upiEnabled: e.target.checked,
+                  })
+                }
+              />
+
+              UPI Payment
+
+            </label>
+
+          </div>
+
+          {qrCode && (
+
+            <div className="qr-preview">
+
+              <h3>
+
+                UPI QR Preview
+
+              </h3>
+
+              <img
+                src={qrCode}
+                alt="UPI QR"
+                className="qr-image"
+              />
+
+            </div>
+
+          )}
+
+          <button
+            className="save-btn"
+            onClick={savePaymentSettings}
+          >
+
+            💾 Save Payment Settings
+
+          </button>
+
+        </section>
+                {/* =====================================
+            PRODUCT MANAGEMENT
+        ===================================== */}
+
+        <section className="dashboard-card full-width">
+
+          <h2>
+
+            📦 Product Management
+
+          </h2>
+
+          <div className="form-grid">
+
+            <input
+              type="text"
+              name="name"
+              placeholder="Product Name"
+              value={newProduct.name}
+              onChange={handleProductChange}
+            />
+
+            <input
+              type="number"
+              name="price"
+              placeholder="Price"
+              value={newProduct.price}
+              onChange={handleProductChange}
+            />
+
+            <input
+              type="text"
+              name="category"
+              placeholder="Category"
+              value={newProduct.category}
+              onChange={handleProductChange}
+            />
+
+            <input
+              type="text"
+              name="image"
+              placeholder="Image URL"
+              value={newProduct.image}
+              onChange={handleProductChange}
+            />
+
+          </div>
+
+          <textarea
+            className="product-description"
+            name="description"
+            placeholder="Product Description"
+            value={newProduct.description}
+            onChange={handleProductChange}
+          />
+
+          <div className="product-actions">
+
+            <button
+              className="save-btn"
+              onClick={saveProduct}
+            >
+
+              {editingProduct
+                ? "✏ Update Product"
+                : "➕ Add Product"}
+
+            </button>
+
+            {editingProduct && (
+
+              <button
+                className="cancel-btn"
+                onClick={resetProductForm}
+              >
+
+                ❌ Cancel Edit
+
+              </button>
+
+            )}
+
+          </div>
+
+          <div className="search-box">
+
+            <input
+              type="text"
+              placeholder="🔍 Search Product..."
+              value={search}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
+            />
+
+          </div>
+
+          <div className="products-table">
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>Image</th>
+
+                  <th>Name</th>
+
+                  <th>Category</th>
+
+                  <th>Price</th>
+
+                  <th>Seller</th>
+
+                  <th>Action</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {filteredProducts.length === 0 ? (
+
+                  <tr>
+
+                    <td
+                      colSpan="6"
+                      className="empty-data"
+                    >
+
+                      No Products Found
+
+                    </td>
+
+                  </tr>
+
+                ) : (
+
+                  filteredProducts.map((product) => (
+
+                    <tr key={product._id}>
+
+                      <td>
+
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="table-image"
+                        />
+
+                      </td>
+
+                      <td>
+
+                        {product.name}
+
+                      </td>
+
+                      <td>
+
+                        {product.category}
+
+                      </td>
+
+                      <td>
+
+                        ₹{product.price}
+
+                      </td>
+
+                      <td>
+
+                        {product.sellerEmail || "-"}
+
+                      </td>
+
+                      <td>
+
+                        <button
+                          className="edit-btn"
+                          onClick={() =>
+                            editProduct(product)
+                          }
+                        >
+
+                          ✏ Edit
+
+                        </button>
+
+                        <button
+                          className="delete-btn"
+                          onClick={() =>
+                            deleteProduct(product._id)
+                          }
+                        >
+
+                          🗑 Delete
+
+                        </button>
+
+                      </td>
+
+                    </tr>
+
+                  ))
+
+                )}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+                {/* =====================================
+            REGISTERED USERS
+        ===================================== */}
+
+        <section className="dashboard-card full-width">
+
+          <h2>
+
+            👥 Registered Users
+
+          </h2>
+
+          <div className="table-responsive">
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>Name</th>
+
+                  <th>Email</th>
+
+                  <th>Role</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {users.length === 0 ? (
+
+                  <tr>
+
+                    <td
+                      colSpan="3"
+                      className="empty-data"
+                    >
+
+                      No Users Found
+
+                    </td>
+
+                  </tr>
+
+                ) : (
+
+                  users.map((user, index) => (
+
+                    <tr key={index}>
+
+                      <td>
+
+                        {user.name || "-"}
+
+                      </td>
+
+                      <td>
+
+                        {user.email || "-"}
+
+                      </td>
+
+                      <td>
+
+                        <span
+                          className={`role-badge ${user.role || "user"}`}
+                        >
+
+                          {user.role || "user"}
+
+                        </span>
+
+                      </td>
+
+                    </tr>
+
+                  ))
+
+                )}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+        {/* =====================================
+            ORDERS
+        ===================================== */}
+
+        <section className="dashboard-card full-width">
+
+          <h2>
+
+            🛒 Customer Orders
+
+          </h2>
+
+          <div className="table-responsive">
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>Order ID</th>
+
+                  <th>Customer</th>
+
+                  <th>Mobile</th>
+
+                  <th>Payment</th>
+
+                  <th>Status</th>
+
+                  <th>Total</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {orders.length === 0 ? (
+
+                  <tr>
+
+                    <td
+                      colSpan="6"
+                      className="empty-data"
+                    >
+
+                      No Orders Found
+
+                    </td>
+
+                  </tr>
+
+                ) : (
+
+                  orders.map((order) => (
+
+                    <tr key={order.orderId}>
+
+                      <td>
+
+                        {order.orderId}
+
+                      </td>
+
+                      <td>
+
+                        {order.customer?.name || "-"}
+
+                      </td>
+
+                      <td>
+
+                        {order.customer?.mobile || "-"}
+
+                      </td>
+
+                      <td>
+
+                        {order.paymentMethod}
+
+                      </td>
+
+                      <td>
+
+                        <span className="status-badge">
+
+                          {order.orderStatus}
+
+                        </span>
+
+                      </td>
+
+                      <td>
+
+                        ₹{order.total}
+
+                      </td>
+
+                    </tr>
+
+                  ))
+
+                )}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+                {/* =====================================
+            ORDER DETAILS
+        ===================================== */}
+
+        {orders.length > 0 && (
+
+          <section className="dashboard-card full-width">
+
+            <h2>
+
+              📋 Order Details
+
+            </h2>
+
+            {orders.map((order) => (
+
+              <div
+                className="order-detail-card"
+                key={order.orderId}
+              >
+
+                <div className="order-top">
+
+                  <h3>
+
+                    Order :
+
+                    {" "}
+
+                    {order.orderId}
+
+                  </h3>
+
+                  <span className="status-badge">
+
+                    {order.orderStatus}
+
+                  </span>
+
+                </div>
+
+                <div className="order-grid">
+
+                  <div>
+
+                    <strong>
+
+                      Customer
+
+                    </strong>
+
+                    <p>
+
+                      {order.customer?.name}
+
+                    </p>
+
+                    <p>
+
+                      {order.customer?.email}
+
+                    </p>
+
+                    <p>
+
+                      {order.customer?.mobile}
+
+                    </p>
+
+                  </div>
+
+                  <div>
+
+                    <strong>
+
+                      Delivery Address
+
+                    </strong>
+
+                    <p>
+
+                      {order.address?.address}
+
+                    </p>
+
+                    <p>
+
+                      {order.address?.city},{" "}
+
+                      {order.address?.state}
+
+                    </p>
+
+                    <p>
+
+                      PIN :
+
+                      {" "}
+
+                      {order.address?.pincode}
+
+                    </p>
+
+                  </div>
+
+                  <div>
+
+                    <strong>
+
+                      Payment
+
+                    </strong>
+
+                    <p>
+
+                      Method :
+
+                      {" "}
+
+                      {order.paymentMethod}
+
+                    </p>
+
+                    <p>
+
+                      Status :
+
+                      {" "}
+
+                      {order.paymentStatus}
+
+                    </p>
+
+                    <p>
+
+                      Txn ID :
+
+                      {" "}
+
+                      {order.transactionId}
+
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <div className="ordered-products">
+
+                  <h4>
+
+                    Ordered Products
+
+                  </h4>
+
+                  {order.products?.map((product) => (
+
+                    <div
+                      className="ordered-product"
+                      key={product._id}
+                    >
+
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="table-image"
+                      />
+
+                      <div>
+
+                        <strong>
+
+                          {product.name}
+
+                        </strong>
+
+                        <p>
+
+                          Qty :
+
+                          {" "}
+
+                          {product.qty || 1}
+
+                        </p>
+
+                      </div>
+
+                      <div>
+
+                        ₹
+
+                        {(product.price || 0) *
+
+                          (product.qty || 1)}
+
+                      </div>
+
+                    </div>
+
+                  ))}
+
+                </div>
+
+                <div className="order-bottom">
+
+                  <h3>
+
+                    Grand Total :
+
+                    {" "}
+
+                    ₹{order.total}
+
+                  </h3>
+
+                </div>
+
+              </div>
+
+            ))}
+
+          </section>
+
+        )}
+                {/* =====================================
+            QUICK SUMMARY
+        ===================================== */}
+
+        <section className="dashboard-card">
+
+          <h2>
+
+            📊 Quick Summary
+
+          </h2>
+
+          <div className="summary-list">
+
+            <div className="summary-item">
+
+              <span>Total Users</span>
+
+              <strong>{stats.totalUsers}</strong>
+
+            </div>
+
+            <div className="summary-item">
+
+              <span>Total Products</span>
+
+              <strong>{stats.totalProducts}</strong>
+
+            </div>
+
+            <div className="summary-item">
+
+              <span>Total Orders</span>
+
+              <strong>{stats.totalOrders}</strong>
+
+            </div>
+
+            <div className="summary-item">
+
+              <span>Total Revenue</span>
+
+              <strong>
+
+                ₹{stats.totalRevenue}
+
+              </strong>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* =====================================
+            SYSTEM INFORMATION
+        ===================================== */}
+
+        <section className="dashboard-card">
+
+          <h2>
+
+            ⚙️ System Information
+
+          </h2>
+
+          <div className="system-info">
+
+            <p>
+
+              <strong>Website :</strong>{" "}
+
+              {settings.websiteName}
+
+            </p>
+
+            <p>
+
+              <strong>Contact :</strong>{" "}
+
+              {settings.contact || "Not Available"}
+
+            </p>
+
+            <p>
+
+              <strong>Email :</strong>{" "}
+
+              {settings.email || "Not Available"}
+
+            </p>
+
+            <p>
+
+              <strong>UPI ID :</strong>{" "}
+
+              {paymentSettings.upiId || "Not Available"}
+
+            </p>
+
+            <p>
+
+              <strong>COD :</strong>{" "}
+
+              {paymentSettings.codEnabled
+
+                ? "Enabled"
+
+                : "Disabled"}
+
+            </p>
+
+            <p>
+
+              <strong>UPI :</strong>{" "}
+
+              {paymentSettings.upiEnabled
+
+                ? "Enabled"
+
+                : "Disabled"}
+
+            </p>
+
+          </div>
+
+        </section>
+
+      </div>
+
+      {/* =====================================
           FOOTER
-      ====================================== */}
+      ===================================== */}
 
       <footer className="admin-footer">
 
         <p>
 
-          © {new Date().getFullYear()}
-
-          {" "}
+          © {new Date().getFullYear()}{" "}
 
           {settings.websiteName}
 
-          {" "}Admin Dashboard
+          {" "}Admin Panel
 
         </p>
 
         <p>
 
-          Developed with ❤️ using React + Node + MongoDB
+          Built with ❤️ using React + Node.js
 
         </p>
 
       </footer>
-            {/* ======================================
-          DASHBOARD SUMMARY
-      ====================================== */}
-
-      <section className="admin-section">
-
-        <h2>📋 Dashboard Summary</h2>
-
-        <div className="summary-box">
-
-          <p>
-
-            Total Users :
-            <strong> {stats.totalUsers}</strong>
-
-          </p>
-
-          <p>
-
-            Total Products :
-            <strong> {stats.totalProducts}</strong>
-
-          </p>
-
-          <p>
-
-            Total Orders :
-            <strong> {stats.totalOrders}</strong>
-
-          </p>
-
-          <p>
-
-            Total Revenue :
-            <strong>
-
-              ₹{stats.totalRevenue.toLocaleString("en-IN")}
-
-            </strong>
-
-          </p>
-
-        </div>
-
-      </section>
 
     </div>
 

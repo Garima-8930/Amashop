@@ -1,31 +1,63 @@
-/* ==========================
+/* ==========================================
+   GOOGLE FONT
+========================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+/* ==========================================
+   RESET
+========================================== */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:"Poppins",sans-serif;
+}
+
+/* ==========================================
    NAVBAR
-========================== */
+========================================== */
 
 .navbar{
+
 position:sticky;
+
 top:0;
+
 left:0;
+
 z-index:1000;
 
 display:flex;
+
 align-items:center;
+
 justify-content:space-between;
 
 padding:14px 6%;
 
-background:rgba(10,10,10,.88);
+background:rgba(12,12,12,.92);
 
 backdrop-filter:blur(18px);
 
-border-bottom:1px solid rgba(255,215,0,.18);
+border-bottom:1px solid rgba(255,215,0,.15);
 
-box-shadow:0 10px 35px rgba(0,0,0,.45);
+box-shadow:0 10px 30px rgba(0,0,0,.35);
+
 }
 
-/* ==========================
-LOGO
-========================== */
+/* ==========================================
+   LOGO
+========================================== */
+
+.logo{
+
+display:flex;
+
+align-items:center;
+
+}
 
 .logo a{
 
@@ -35,9 +67,11 @@ font-size:34px;
 
 font-weight:700;
 
-color:white;
-
 letter-spacing:1px;
+
+color:#fff;
+
+transition:.3s;
 
 }
 
@@ -47,9 +81,15 @@ color:#FFD700;
 
 }
 
-/* ==========================
-SEARCH
-========================== */
+.logo a:hover{
+
+transform:scale(1.03);
+
+}
+
+/* ==========================================
+   SEARCH
+========================================== */
 
 .search-form{
 
@@ -57,15 +97,25 @@ display:flex;
 
 align-items:center;
 
-width:420px;
+width:430px;
 
-background:#181818;
-
-border:1px solid rgba(255,215,0,.2);
+background:#1a1a1a;
 
 border-radius:50px;
 
+border:1px solid rgba(255,215,0,.18);
+
 overflow:hidden;
+
+transition:.3s;
+
+}
+
+.search-form:focus-within{
+
+border-color:#FFD700;
+
+box-shadow:0 0 12px rgba(255,215,0,.2);
 
 }
 
@@ -73,17 +123,23 @@ overflow:hidden;
 
 flex:1;
 
-background:transparent;
+padding:14px 18px;
 
 border:none;
 
 outline:none;
 
-padding:14px 18px;
+background:transparent;
 
-color:white;
+color:#fff;
 
 font-size:15px;
+
+}
+
+.search-form input::placeholder{
+
+color:#999;
 
 }
 
@@ -97,13 +153,13 @@ border:none;
 
 background:#FFD700;
 
-color:black;
-
-cursor:pointer;
+color:#111;
 
 font-size:18px;
 
-transition:.35s;
+cursor:pointer;
+
+transition:.3s;
 
 }
 
@@ -112,10 +168,9 @@ transition:.35s;
 background:#ffca2d;
 
 }
-
-/* ==========================
-MENU BUTTON
-========================== */
+/* ==========================================
+   MENU BUTTON
+========================================== */
 
 .menu-btn{
 
@@ -125,17 +180,25 @@ background:none;
 
 border:none;
 
-font-size:28px;
-
 color:#FFD700;
+
+font-size:28px;
 
 cursor:pointer;
 
+transition:.3s;
+
 }
 
-/* ==========================
-LINKS
-========================== */
+.menu-btn:hover{
+
+transform:rotate(90deg);
+
+}
+
+/* ==========================================
+   NAVIGATION
+========================================== */
 
 .nav-links{
 
@@ -143,11 +206,13 @@ display:flex;
 
 align-items:center;
 
-gap:25px;
+gap:22px;
 
 }
 
-.nav-links a{
+.nav-links a,
+.nav-btn,
+.login-btn{
 
 display:flex;
 
@@ -155,25 +220,39 @@ align-items:center;
 
 gap:8px;
 
+background:none;
+
+border:none;
+
+outline:none;
+
 text-decoration:none;
 
-color:white;
+color:#fff;
+
+font-size:15px;
 
 font-weight:500;
 
+cursor:pointer;
+
 position:relative;
 
-transition:.35s;
+transition:.3s;
 
 }
 
-.nav-links a:hover{
+.nav-links a:hover,
+.nav-btn:hover,
+.login-btn:hover{
 
 color:#FFD700;
 
 }
 
-.nav-links a::after{
+.nav-links a::after,
+.nav-btn::after,
+.login-btn::after{
 
 content:"";
 
@@ -193,71 +272,152 @@ transition:.35s;
 
 }
 
-.nav-links a:hover::after{
+.nav-links a:hover::after,
+.nav-btn:hover::after,
+.login-btn:hover::after{
 
 width:100%;
 
 }
-/* ==========================
-PROFILE
-========================== */
+
+/* ==========================================
+   LOGIN BUTTON
+========================================== */
+
+.login-btn{
+
+padding:10px 18px;
+
+background:#FFD700;
+
+color:#111;
+
+border-radius:30px;
+
+font-weight:700;
+
+}
+
+.login-btn::after{
+
+display:none;
+
+}
+
+.login-btn:hover{
+
+background:#ffca2d;
+
+color:#111;
+
+transform:translateY(-2px);
+
+}
+
+/* ==========================================
+   PROFILE
+========================================== */
 
 .profile-section{
+
 display:flex;
+
 align-items:center;
+
 gap:15px;
+
 }
 
 .user-name{
+
 display:flex;
+
 align-items:center;
+
 gap:8px;
-color:#fff;
+
+font-size:15px;
+
 font-weight:600;
+
+color:#FFD700;
+
 }
 
 .logout-btn{
+
+display:flex;
+
+align-items:center;
+
+gap:8px;
+
 padding:10px 18px;
+
 border:none;
+
 border-radius:30px;
-background:#FFD700;
-color:#111;
-cursor:pointer;
+
+background:#e53935;
+
+color:#fff;
+
 font-weight:600;
+
+cursor:pointer;
+
 transition:.3s;
+
 }
 
 .logout-btn:hover{
-background:#ffca2d;
+
+background:#c62828;
+
+transform:translateY(-2px);
+
 }
 
-/* ==========================
-CART BADGE
-========================== */
-
-.cart-link{
-position:relative;
-}
+/* ==========================================
+   CART BADGE
+========================================== */
 
 .cart-badge{
-position:absolute;
-top:-10px;
-right:-12px;
-width:20px;
-height:20px;
-border-radius:50%;
-background:red;
-color:#fff;
-font-size:11px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-weight:bold;
-}
 
-/* ==========================
-MOBILE
-========================== */
+position:absolute;
+
+top:-10px;
+
+right:-12px;
+
+min-width:20px;
+
+height:20px;
+
+padding:0 6px;
+
+border-radius:50px;
+
+background:#ff2d2d;
+
+color:#fff;
+
+font-size:11px;
+
+font-weight:700;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+box-shadow:0 0 10px rgba(255,0,0,.4);
+
+}
+/* ==========================================
+   RESPONSIVE
+========================================== */
 
 @media (max-width:992px){
 
@@ -269,7 +429,19 @@ padding:12px 20px;
 
 .search-form{
 
-width:250px;
+width:260px;
+
+}
+
+.logo a{
+
+font-size:30px;
+
+}
+
+.nav-links{
+
+gap:18px;
 
 }
 
@@ -285,20 +457,21 @@ padding:12px 15px;
 
 .logo a{
 
-font-size:28px;
-
-}
-
-.menu-btn{
-
-display:block;
-z-index:1002;
+font-size:26px;
 
 }
 
 .search-form{
 
 display:none;
+
+}
+
+.menu-btn{
+
+display:block;
+
+z-index:1002;
 
 }
 
@@ -310,7 +483,7 @@ top:0;
 
 right:-100%;
 
-width:280px;
+width:290px;
 
 height:100vh;
 
@@ -322,15 +495,15 @@ flex-direction:column;
 
 align-items:flex-start;
 
-padding:90px 30px;
+padding:90px 28px;
 
-gap:25px;
-
-transition:.35s;
-
-box-shadow:-5px 0 25px rgba(0,0,0,.4);
+gap:24px;
 
 overflow-y:auto;
+
+transition:.35s ease;
+
+box-shadow:-6px 0 25px rgba(0,0,0,.45);
 
 z-index:1001;
 
@@ -342,15 +515,45 @@ right:0;
 
 }
 
-.nav-links a{
-
-font-size:18px;
+.nav-links a,
+.nav-btn,
+.login-btn{
 
 width:100%;
 
-padding-bottom:10px;
+justify-content:flex-start;
+
+padding-bottom:12px;
 
 border-bottom:1px solid rgba(255,255,255,.08);
+
+font-size:17px;
+
+}
+
+.login-btn{
+
+background:none;
+
+border:none;
+
+border-radius:0;
+
+color:#fff;
+
+padding:0 0 12px;
+
+font-weight:500;
+
+}
+
+.login-btn:hover{
+
+background:none;
+
+color:#FFD700;
+
+transform:none;
 
 }
 
@@ -358,13 +561,21 @@ border-bottom:1px solid rgba(255,255,255,.08);
 
 width:100%;
 
+display:flex;
+
 flex-direction:column;
 
 align-items:flex-start;
 
 gap:15px;
 
-margin-top:20px;
+margin-top:10px;
+
+}
+
+.user-name{
+
+font-size:16px;
 
 }
 
@@ -372,15 +583,23 @@ margin-top:20px;
 
 width:100%;
 
+justify-content:center;
+
 }
 
 }
 
 @media (max-width:480px){
 
+.navbar{
+
+padding:10px 14px;
+
+}
+
 .logo a{
 
-font-size:24px;
+font-size:22px;
 
 }
 
@@ -391,5 +610,65 @@ width:240px;
 padding:80px 20px;
 
 }
+
+.nav-links a,
+.nav-btn,
+.login-btn{
+
+font-size:16px;
+
+}
+
+.user-name{
+
+font-size:15px;
+
+}
+
+.logout-btn{
+
+padding:10px;
+
+font-size:14px;
+
+}
+
+.cart-badge{
+
+top:-8px;
+
+right:-10px;
+
+min-width:18px;
+
+height:18px;
+
+font-size:10px;
+
+}
+
+}
+
+/* ==========================================
+   SCROLLBAR
+========================================== */
+
+.nav-links::-webkit-scrollbar{
+
+width:6px;
+
+}
+
+.nav-links::-webkit-scrollbar-thumb{
+
+background:#FFD700;
+
+border-radius:20px;
+
+}
+
+.nav-links::-webkit-scrollbar-track{
+
+background:#1a1a1a;
 
 }

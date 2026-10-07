@@ -1,6 +1,7 @@
 // src/App.js
 
 import React from "react";
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -11,11 +12,12 @@ import {
 import Navbar from "./components/Navbar";
 
 import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrdersPage from "./pages/OrdersPage";
 
-import LoginPage from "./pages/LoginPage";
 import SellerDashboard from "./pages/SellerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 
@@ -32,65 +34,130 @@ function App() {
 
         <CartProvider>
 
+          {/* ==========================
+              GLOBAL NAVBAR
+          ========================== */}
+
           <Navbar />
+
+          {/* ==========================
+              ROUTES
+          ========================== */}
 
           <Routes>
 
-            {/* ================= HOME ================= */}
+            {/* ==========================
+                DEFAULT
+            ========================== */}
 
             <Route
+
               path="/"
-              element={<Navigate to="/home" replace />}
+
+              element={
+
+                <Navigate
+
+                  to="/home"
+
+                  replace
+
+                />
+
+              }
+
             />
 
+            {/* ==========================
+                HOME
+            ========================== */}
+
             <Route
+
               path="/home"
-              element={<HomePage />}
+
+              element={
+
+                <HomePage />
+
+              }
+
             />
 
-            {/* ================= USER ================= */}
+            {/* ==========================
+                LOGIN
+            ========================== */}
 
             <Route
-              path="/login"
-              element={<LoginPage />}
-            />
 
-            {/* ================= CART ================= */}
+              path="/login"
+
+              element={
+
+                <LoginPage />
+
+              }
+
+            />
+                        {/* ==========================
+                USER ROUTES
+            ========================== */}
 
             <Route
               path="/cart"
-              element={<CartPage />}
+              element={
+                <CartPage />
+              }
             />
 
             <Route
               path="/checkout"
-              element={<CheckoutPage />}
+              element={
+                <CheckoutPage />
+              }
             />
 
             <Route
               path="/orders"
-              element={<OrdersPage />}
+              element={
+                <OrdersPage />
+              }
             />
 
-            {/* ================= SELLER ================= */}
+            {/* ==========================
+                SELLER
+            ========================== */}
 
             <Route
               path="/seller"
-              element={<SellerDashboard />}
+              element={
+                <SellerDashboard />
+              }
             />
 
-            {/* ================= ADMIN ================= */}
+            {/* ==========================
+                ADMIN
+            ========================== */}
 
             <Route
               path="/admin"
-              element={<AdminDashboard />}
+              element={
+                <AdminDashboard />
+              }
             />
 
-            {/* ================= 404 ================= */}
+            {/* ==========================
+                PAGE NOT FOUND
+            ========================== */}
 
             <Route
               path="*"
-              element={<Navigate to="/home" replace />}
+              element={
+                <Navigate
+                  to="/home"
+                  replace
+                />
+              }
             />
 
           </Routes>

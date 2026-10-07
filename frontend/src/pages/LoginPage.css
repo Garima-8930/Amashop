@@ -1,0 +1,405 @@
+/* ==========================================
+   GOOGLE FONT
+========================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+/* ==========================================
+   RESET
+========================================== */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:"Poppins",sans-serif;
+}
+
+/* ==========================================
+   LOGIN PAGE
+========================================== */
+
+.login-page{
+
+min-height:100vh;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+padding:30px;
+
+background:
+linear-gradient(
+135deg,
+#050505,
+#111111,
+#1b1b1b
+);
+
+}
+
+/* ==========================================
+   CARD
+========================================== */
+
+.login-card{
+
+width:100%;
+
+max-width:430px;
+
+background:#121212;
+
+border:1px solid rgba(255,215,0,.18);
+
+border-radius:22px;
+
+padding:40px;
+
+box-shadow:
+0 15px 45px rgba(0,0,0,.45);
+
+}
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.login-header{
+
+text-align:center;
+
+margin-bottom:30px;
+
+}
+
+.login-header h1{
+
+font-size:34px;
+
+color:#FFD700;
+
+font-weight:700;
+
+margin-bottom:10px;
+
+}
+
+.login-header p{
+
+color:#bfbfbf;
+
+font-size:15px;
+
+line-height:1.6;
+
+}
+
+/* ==========================================
+   FORM
+========================================== */
+
+.login-form{
+
+display:flex;
+
+flex-direction:column;
+
+gap:20px;
+
+}
+
+/* ==========================================
+   INPUT GROUP
+========================================== */
+
+.input-group{
+
+display:flex;
+
+flex-direction:column;
+
+gap:8px;
+
+}
+
+.input-group label{
+
+color:#fff;
+
+font-size:15px;
+
+font-weight:500;
+
+}
+
+.input-group input{
+
+width:100%;
+
+padding:14px 16px;
+
+border-radius:12px;
+
+border:1px solid rgba(255,255,255,.12);
+
+background:#1b1b1b;
+
+color:#fff;
+
+font-size:15px;
+
+outline:none;
+
+transition:.3s;
+
+}
+
+.input-group input:focus{
+
+border-color:#FFD700;
+
+box-shadow:
+0 0 12px rgba(255,215,0,.18);
+
+}
+
+.input-group input::placeholder{
+
+color:#888;
+
+}
+/* ==========================================
+   LOGIN BUTTON
+========================================== */
+
+.login-button{
+
+width:100%;
+
+padding:15px;
+
+border:none;
+
+border-radius:12px;
+
+background:linear-gradient(
+135deg,
+#FFD700,
+#ffca2d
+);
+
+color:#111;
+
+font-size:17px;
+
+font-weight:700;
+
+cursor:pointer;
+
+transition:.3s;
+
+}
+
+.login-button:hover{
+
+transform:translateY(-3px);
+
+box-shadow:
+0 12px 25px
+rgba(255,215,0,.28);
+
+}
+
+.login-button:disabled{
+
+opacity:.65;
+
+cursor:not-allowed;
+
+transform:none;
+
+box-shadow:none;
+
+}
+
+/* ==========================================
+   LOGIN INFO
+========================================== */
+
+.login-info{
+
+margin-top:18px;
+
+padding:14px;
+
+background:#1b1b1b;
+
+border:1px solid
+rgba(255,215,0,.12);
+
+border-radius:10px;
+
+text-align:center;
+
+}
+
+.login-info p{
+
+font-size:14px;
+
+color:#cfcfcf;
+
+line-height:1.6;
+
+}
+
+/* ==========================================
+   FOOTER
+========================================== */
+
+.login-footer{
+
+margin-top:28px;
+
+text-align:center;
+
+}
+
+/* ==========================================
+   BACK BUTTON
+========================================== */
+
+.back-home-btn{
+
+padding:12px 20px;
+
+border:none;
+
+border-radius:10px;
+
+background:transparent;
+
+border:1px solid
+rgba(255,215,0,.25);
+
+color:#FFD700;
+
+font-size:15px;
+
+font-weight:600;
+
+cursor:pointer;
+
+transition:.3s;
+
+}
+
+.back-home-btn:hover{
+
+background:#FFD700;
+
+color:#111;
+
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width:768px){
+
+.login-page{
+
+padding:20px;
+
+}
+
+.login-card{
+
+padding:30px 22px;
+
+}
+
+.login-header h1{
+
+font-size:28px;
+
+}
+
+.login-header p{
+
+font-size:14px;
+
+}
+
+.input-group input{
+
+padding:13px 14px;
+
+font-size:14px;
+
+}
+
+.login-button{
+
+font-size:16px;
+
+padding:14px;
+
+}
+
+}
+
+@media (max-width:480px){
+
+.login-card{
+
+padding:24px 18px;
+
+border-radius:16px;
+
+}
+
+.login-header h1{
+
+font-size:24px;
+
+}
+
+.login-header p{
+
+font-size:13px;
+
+}
+
+.input-group label{
+
+font-size:14px;
+
+}
+
+.input-group input{
+
+font-size:14px;
+
+}
+
+.login-button{
+
+font-size:15px;
+
+padding:13px;
+
+}
+
+.back-home-btn{
+
+width:100%;
+
+}
+
+}

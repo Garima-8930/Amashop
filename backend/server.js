@@ -35,18 +35,30 @@ console.log("✅ Step 3: Express Created");
 
 const allowedOrigins = [
   "http://localhost:3000",
+  "http://localhost:5173",
+
+  // Old Vercel URL
   "https://amashop-nine.vercel.app",
+
+  // Current Vercel URLs
+  "https://amashop-git-main-growwell.vercel.app",
+  "https://amashop-gyhh2ksgj-growwell.vercel.app",
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-
-      if (!origin) return callback(null, true);
+      // Allow requests without an origin
+      // (Postman, direct browser/API requests, etc.)
+      if (!origin) {
+        return callback(null, true);
+      }
 
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
+
+      console.log("❌ CORS blocked origin:", origin);
 
       return callback(new Error("Not allowed by CORS"));
     },
